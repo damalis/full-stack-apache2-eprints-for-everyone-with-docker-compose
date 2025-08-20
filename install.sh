@@ -1,0 +1,713 @@
+#!/bin/bash
+
+clear
+echo ""
+echo "======================================================================="
+echo "|                                                                     |"
+echo "|    full-stack-apache2-eprints-for-everyone-with-docker-compose      |"
+echo "|                         by Erdal ALTIN                              |"
+echo "|                                                                     |"
+echo "======================================================================="
+sleep 2
+
+# the "lpms" is an abbreviation of Linux Package Management System
+lpms=""
+for i in apk dnf yum apt zypper pacman
+do
+	if [ -x "$(command -v $i)" ]; then
+		if [ "$i" == "apk" ]
+		then
+			lpms=$i
+			sudo apk add --no-cache --upgrade grep
+			break
+		elif [ "$i" == "dnf" ] && ([[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == "fedora" ]] || (([[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') != "centos" ]] && [[ $(grep -Pow 'ID_LIKE=\K[^;]*' /etc/os-release | tr -d '"') == *"fedora"* ]]) || ([[ $(grep -Pow 'ID_LIKE=\K[^;]*' /etc/os-release | tr -d '"') == *"rhel"* ]] && [ $(sudo uname -m) == "s390x" ])))
+		then
+			lpms=$i
+			break
+		elif [ "$i" == "yum" ] && ([[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == "centos" ]] || (([[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') != "fedora" ]] && [[ $(grep -Pow 'ID_LIKE=\K[^;]*' /etc/os-release | tr -d '"') == *"fedora"* ]]) || ([[ $(grep -Pow 'ID_LIKE=\K[^;]*' /etc/os-release | tr -d '"') == *"rhel"* ]] && [ $(sudo uname -m) == "s390x" ])))
+		then
+			lpms=$i
+			break
+		elif [ "$i" == "apt" ] && ([[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == *"ubuntu"* ]] || [[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == *"debian"* ]] || [[ $(grep -Pow 'ID_LIKE=\K[^;]*' /etc/os-release | tr -d '"') == *"ubuntu"* ]] || [[ $(grep -Pow 'ID_LIKE=\K[^;]*' /etc/os-release | tr -d '"') == *"debian"* ]])
+		then
+			lpms=$i
+			break
+		elif [[ $(grep -Pow 'ID_LIKE=\K[^;]*' /etc/os-release) == *"suse"* ]]
+		then
+			lpms=$i
+			break
+		elif [ "$i" == "pacman" ]
+		then
+			lpms=$i
+			break
+		fi
+	fi
+done
+
+if [ -z $lpms ]; then
+	echo ""
+	echo "could not be detected package management system"
+	echo ""
+	exit 0
+fi
+
+##########
+# Uninstall old versions
+##########
+echo ""
+echo ""
+echo "======================================================================="
+echo "| Older versions of Docker were called docker, docker.io, or docker-engine."
+echo "| If these are installed or all conflicting packages, uninstall them."
+echo "======================================================================="
+echo ""
+sleep 2
+
+# linux remove command for pms
+if [ "$lpms" == "apk" ]
+then
+	sudo apk del docker podman-docker
+elif [ "$lpms" == "dnf" ]
+then
+	sudo dnf remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine
+elif [ "$lpms" == "yum" ]
+then
+	sudo yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine podman runc
+elif [ "$lpms" == "apt" ]
+then
+	for pkg in docker docker-engine docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt remove $pkg; done
+elif [ "$lpms" == "zypper" ]
+then
+	if [[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == *"sles"* ]]
+	then
+		sudo zypper remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine runc
+	fi
+elif [ "$lpms" == "pacman" ]
+then
+	sudo pacman -Rssn podman-docker podman-compose
+else
+	echo ""
+	echo "could not be detected package management system"
+	echo ""
+	exit 0
+fi
+
+echo ""
+echo "Done ✓"
+echo "======================================================================="
+
+##########
+# Install Docker
+##########
+echo ""
+echo ""
+echo "======================================================================="
+echo "| Install Docker..."
+echo "======================================================================="
+echo ""
+sleep 2
+
+if [ "$lpms" == "apk" ]
+then
+	sudo apk add --update docker openrc bind-tools
+	sudo rc-update add docker boot
+	sudo service docker start
+elif [ "$lpms" == "dnf" ]
+then
+	sudo dnf -y install dnf-plugins-core
+	if [[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == "fedora" ]] || ([[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == "rhel" ]] && [ $(sudo uname -m) == "s390x" ])
+	then
+		sudo dnf config-manager --add-repo https://download.docker.com/linux/$(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"')/docker-ce.repo
+		sudo dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin bind-utils
+	elif [[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') != "rhel" ]]
+	then
+		sudo dnf install docker
+	else
+		echo ""
+		echo "unsupport operation system and/or architecture"
+		echo ""
+		exit 0
+	fi
+elif [ "$lpms" == "yum" ]
+then
+	sudo yum install -y yum-utils
+	if [[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == "centos" ]] || ([[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == "rhel" ]] && [ $(sudo uname -m) == "s390x" ])
+	then
+		sudo yum-config-manager --add-repo https://download.docker.com/linux/$(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"')/docker-ce.repo
+		sudo yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin bind-utils
+	elif [[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') != "rhel" ]]
+	then 
+		sudo yum install docker
+	else
+		echo ""
+		echo "unsupport operation system and/or architecture"
+		echo ""
+		exit 0
+	fi
+elif [ "$lpms" == "zypper" ]
+then
+	if [[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == *"sles"* ]] && [ $(sudo uname -m) == "s390x" ]
+	then
+		# "https://download.opensuse.org/repositories/security:/SELinux/openSUSE_Factory/security:SELinux.repo"
+		sudo zypper addrepo "https://download.opensuse.org/repositories/security/$(grep -Pow 'VERSION_ID=\K[^;]*' /etc/os-release | tr -d '"')/security.repo"
+		sudo zypper addrepo https://download.docker.com/linux/sles/docker-ce.repo
+		sudo zypper install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+	else
+		sudo SUSEConnect -p sle-module-containers/$(sudo uname -s)/$(sudo uname -m) -r ''
+		sudo zypper install docker
+	fi
+
+	#Installed=`sudo zypper search --installed-only -v docker | sed -n '6p' | cut -c 28-40`
+	#Candidate=`sudo zypper info docker | sed -n '10p' | cut -c 18-`
+elif [ "$lpms" == "apt" ]
+then
+	sudo apt update
+	sudo apt install ca-certificates curl gnupg lsb-release
+	sudo mkdir -m 0755 /etc/apt/keyrings
+	sudo curl -fsSL https://download.docker.com/linux/$(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"')/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+	sudo chmod a+r /etc/apt/keyrings/docker.gpg
+	# Add the repository to Apt sources:
+	echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') $(grep -Po 'VERSION_CODENAME=\K[^;]*' /etc/os-release) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+	sudo apt update
+	sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+	#Installed=`sudo apt-cache policy docker-ce | sed -n '2p' | cut -c 14-`
+	#Candidate=`sudo apt-cache policy docker-ce | sed -n '3p' | cut -c 14-`
+elif [ "$lpms" == "pacman" ]
+then
+	sudo pacman -Syu --noconfirm
+	sudo pacman -Ss docker docker-buildx
+else
+	echo ""
+	echo "could not be detected package management system"
+	echo ""
+	exit 0
+fi
+
+#sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+#if [[ "$Installed" != "$Candidate" ]]; then
+#	sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+#elif [[ "$Installed" == "$Candidate" ]]; then
+#	echo ""
+#	echo 'docker currently version already installed.'
+#fi
+
+if [ $? -ne 0 ]
+then
+	exit 0
+fi
+
+if [ $lpms != "apk" ]
+then
+	sudo systemctl enable docker.service
+	sudo systemctl enable containerd.service
+	sudo systemctl start docker
+fi
+
+echo ""
+echo "Done ✓"
+echo "======================================================================="
+
+##########
+# Run Docker without sudo rights
+##########
+echo ""
+echo ""
+echo "======================================================================="
+echo "| Running Docker without sudo rights..."
+echo "======================================================================="
+echo ""
+sleep 2
+
+sudo groupadd docker
+sudo usermod -aG docker ${USER}
+# su - ${USER} &
+
+echo ""
+echo "Done ✓"
+echo "======================================================================="
+
+##########
+# Install Docker Compose
+##########
+echo ""
+echo ""
+echo "======================================================================="
+echo "| Installing Docker Compose v2.32.4..."
+echo "======================================================================="
+echo ""
+sleep 2
+
+sudo mkdir -p /usr/local/lib/docker/cli-plugins
+sudo curl -SL "https://github.com/docker/compose/releases/download/v2.32.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
+sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
+echo ""
+echo "Done ✓"
+echo "======================================================================="
+
+##########
+# permission for Docker daemon socket
+##########
+echo ""
+echo ""
+echo "======================================================================="
+echo "| permission for Docker daemon socket..."
+echo "======================================================================="
+echo ""
+sleep 2
+
+sudo chmod 666 /var/run/docker.sock
+
+echo ""
+echo "Done ✓"
+echo "======================================================================="
+
+clear
+##########
+# Setup project variables
+##########
+echo ""
+echo "======================================================================="
+echo "| Please enter project related variables..."
+echo "======================================================================="
+echo ""
+sleep 2
+
+# set the host
+which_h=""
+items=("localhost" "remotehost")
+PS3="which computer command line are you on? Select the host: "
+select h in "${items[@]}"
+do
+	case $REPLY in
+		1)
+			which_h=$h
+			break;;
+		2)
+			which_h=$h
+			break;;
+		*)
+			echo "Invalid choice $REPLY";;
+	esac
+done
+echo "Ok."
+
+# set your domain name
+domain_name=""
+if [ "$which_h" == "localhost" ]
+then
+	read -p 'Enter Domain Name(default : localhost or e.g. : example.com): ' domain_name
+	: ${domain_name:=localhost}
+	[ "$domain_name" != "localhost" ] && sudo -- sh -c -e "grep -qxF '127.0.1.1  $domain_name' /etc/hosts || echo '127.0.1.1  $domain_name' >> /etc/hosts"
+	ping -c 1 $domain_name 2>&1 > /dev/null
+else
+	#domain_name=""
+	read -p 'Enter Domain Name(e.g. : example.com): ' domain_name
+	#[ "$domain_name" != "localhost" ] && sudo -- sh -c -e "sed -i '/$domain_name/d' /etc/hosts"
+	[ -z $domain_name ] && domain_name="NULL"
+	host -N 0 $domain_name 2>&1 > /dev/null
+fi
+# [ -z $domain_name ] && domain_name="NULL"
+# host -N 0 $domain_name 2>&1 > /dev/null
+while [ $? -ne 0 ]
+do
+	echo "Try again"
+	sudo -- sh -c -e "sed -i '/$domain_name/d' /etc/hosts"
+	if [ "$which_h" == "localhost" ]
+	then
+		read -p 'Enter Domain Name(default : localhost or e.g. : example.com): ' domain_name
+		: ${domain_name:=localhost}
+		[ "$domain_name" != "localhost" ] && sudo -- sh -c -e "grep -qxF '127.0.1.1  $domain_name' /etc/hosts || echo '127.0.1.1  $domain_name' >> /etc/hosts"
+		ping -c 1 $domain_name 2>&1 > /dev/null
+	else
+		read -p 'Enter Domain Name(e.g. : example.com): ' domain_name
+		#[ "$domain_name" != "localhost" ] && sudo -- sh -c -e "sed -i '/$domain_name/d' /etc/hosts"
+		[ -z $domain_name ] && domain_name="NULL"
+		host -N 0 $domain_name 2>&1 > /dev/null
+	fi
+	#[ -z $domain_name ] && domain_name="NULL"
+	#host -N 0 $domain_name 2>&1 > /dev/null
+done
+echo "Ok."
+
+# set parameters in eprints create_pub_values.txt and env.example file
+archive_id=""
+regex="^[a-zA-Z][_a-zA-Z0-9]*$"
+echo "Please select an ID for the repository, which will be used to create a directory and identify the repository. Lower case letters, numbers and underscores, may not start with a number or underscore. examples: 'lemurprints', 'test3' or 'research_archive'"
+echo ""
+read -p 'Enter Archive ID: ' archive_id
+while [ -z $archive_id ] || [[ ! $archive_id =~ $regex ]]
+do
+	echo "Try again"
+	read -p 'Enter Archive ID: ' archive_id
+	sleep 1
+done
+echo $archive_id > $(pwd)/docker/create_pub_values.txt
+echo "Ok."
+
+# set parameter, Configure vital settings? [yes]
+echo "yes" >> $(pwd)/docker/create_pub_values.txt
+
+subdomain=""
+regex="^[a-z0-9-]+(\.[a-z0-9-]+)*$"
+read -p 'Enter Subdomain (default : repo): ' subdomain
+if [ "$which_h" == "localhost" ]
+then
+        sudo -- sh -c -e "grep -qxF '127.0.1.1  '$subdomain'.'$domain_name /etc/hosts || echo '127.0.1.1  '$subdomain'.'$domain_name >> /etc/hosts"
+fi
+while [ -z $subdomain ] || [[ ! $subdomain =~ $regex ]]
+do
+        echo "Try again"
+        sudo -- sh -c -e "sed -i '/$subdomain/d' /etc/hosts"
+        if [ "$which_h" == "localhost" ]
+        then
+                read -p 'Enter Subdomain (default: repo): ' subdomain
+                sudo -- sh -c -e "grep -qxF '127.0.1.1  '$subdomain'.'$domain_name /etc/hosts || echo '127.0.1.1  '$subdomain'.'$domain_name >> /etc/hosts"
+        else
+                read -p 'Enter Subdomain (default: repo): ' subdomain
+        fi
+        sleep 1
+done
+# set parameter, Please enter the subdomain of the repository.
+echo "$subdomain.$domain_name" >> $(pwd)/docker/create_pub_values.txt
+echo "Ok."
+
+ssl_snippet=""
+if [ "$which_h" == "localhost" ]
+then
+	ssl_snippet="echo 'Generated Self-signed SSL Certificate at localhost'"
+	if [ "$lpms" == "apk" ]
+	then
+		sudo apk add --no-cache nss-tools go git
+	elif [ "$lpms" == "dnf" ]
+	then
+		sudo dnf install nss-tools go git
+	elif [ "$lpms" == "yum" ]
+	then
+		sudo yum install nss-tools go git
+	elif [ "$lpms" == "zypper" ]
+	then
+		sudo zypper install mozilla-nss-tools go git
+	elif [ "$lpms" == "apt" ]
+	then
+		sudo apt install libnss3-tools go git
+	elif [ "$lpms" == "pacman" ]
+	then
+		sudo pacman -S nss go git
+	else
+		echo ""
+		echo "could not be detected package management system"
+		echo ""
+		exit 0
+	fi
+	sudo rm -Rf mkcert && git clone https://github.com/FiloSottile/mkcert && cd mkcert && go build -ldflags "-X main.Version=$(git describe --tags)"
+	sudo mkcert -uninstall && mkcert -install && mkcert -key-file privkey.pem -cert-file chain.pem *.$domain_name && sudo cat privkey.pem chain.pem > fullchain.pem && sudo mkdir -p ../certbot/live/$subdomain.$domain_name && sudo mv *.pem ../certbot/live/$subdomain.$domain_name && cd ..
+	echo "Ok."
+else
+	ssl_snippet="certbot certonly --webroot --webroot-path \/tmp\/acme-challenge --rsa-key-size 4096 --non-interactive --agree-tos --no-eff-email --force-renewal --email \$\{LETSENCRYPT_EMAIL\} -d \$\{SUBDOMAIN\}.\$\{DOMAIN_NAME\} -d www.\$\{SUBDOMAIN\}.\$\{DOMAIN_NAME\}"
+fi
+
+# set parameter, Webserver Port [80]
+echo "80" >> $(pwd)/docker/create_pub_values.txt
+
+# set parameter, Alias for hostname, Alias (enter # when done) [#]
+echo "#" >> $(pwd)/docker/create_pub_values.txt
+
+# set parameter, Repository’s base URL, Path [/]
+echo "/" >> $(pwd)/docker/create_pub_values.txt
+
+# set parameter, HTTPS Hostname []
+echo "$subdomain.$domain_name" >> $(pwd)/docker/create_pub_values.txt
+
+# set parameter, Secure webserver port, Secure Webserver Port [443]
+echo "443" >> $(pwd)/docker/create_pub_values.txt
+
+# set parameters in env.example file and values eprints
+email=""
+regex="^[a-zA-Z0-9\._-]+\@[a-zA-Z0-9._-]+\.[a-zA-Z]+\$"
+read -p 'Enter Email Address for letsencrypt ssl and administrator(e.g. : email@domain.com): ' email
+while [ -z $email ] || [[ ! $email =~ $regex ]]
+do
+	echo "Try again"
+	read -p 'Enter Email Address for letsencrypt ssl and administrator(e.g. : email@domain.com): ' email
+	sleep 1
+done
+echo $email >> $(pwd)/docker/create_pub_values.txt
+echo "Ok."
+
+# set parameter, Archive Name
+echo "Enter the name of the repository in the default language. If you wish to enter other titles for other languages or enter non ascii characters then you may enter something as a placeholder and edit the XML config file which this script generates."
+echo ""
+read -p 'Enter Archive Name [Test Repository]: ' archive_name
+: ${archive_name:=Test Repository}
+while [ -z "$archive_name" ]
+do
+	echo "Try again"
+	read -p 'Enter Archive Name [Test Repository]: ' archive_name
+	sleep 1
+done
+echo $archive_name >> $(pwd)/docker/create_pub_values.txt
+echo "Ok."
+
+# set parameter, Organisation Name
+echo "Enter the name of the organisation in the default language. Again, if you wish to enter other titles for other languages or enter non ascii characters then you may enter something as a placeholder and edit the XML config file which this script generates."
+echo ""
+read -p 'Enter Organisation Name [Organisation of Test]: ' organisation_name
+: ${organisation_name:=Organisation of Test}
+while [ -z "$organisation_name" ]
+do
+	echo "Try again"
+	read -p 'Enter Organisation Name [Organisation of Test]: ' organisation_name
+	sleep 1
+done
+echo $organisation_name >> $(pwd)/docker/create_pub_values.txt
+echo "Ok."
+
+# set parameter, Write these core settings? [yes]
+echo "yes" >> $(pwd)/docker/create_pub_values.txt
+
+# set parameter, Configure database? [yes]
+echo "yes" >> $(pwd)/docker/create_pub_values.txt
+
+db_name=""
+read -p 'Enter Database Name(at least 6 characters): ' db_name
+while [[ ! $db_name =~ $db_regex ]]
+do
+	echo "Try again (can only contain numerals 0-9, basic Latin letters, both lowercase and uppercase, dollar sign and underscore)"
+	read -p 'Enter Database Name(at least 6 characters): ' db_name
+	sleep 1
+done
+# set parameter, Database Name
+echo $db_name >> $(pwd)/docker/create_pub_values.txt
+echo "Ok."
+
+# set parameter, MySQL Host [localhost]
+echo "database" >> $(pwd)/docker/create_pub_values.txt
+
+# set parameter, MySQL Port (# for no setting) [#]
+echo "3306" >> $(pwd)/docker/create_pub_values.txt
+
+# set parameter, MySQL Socket (# for no setting) [#]
+echo "#" >> $(pwd)/docker/create_pub_values.txt
+
+db_username=""
+db_regex="^[0-9a-zA-Z\$_]{6,}$"
+read -p 'Enter Database Username(at least 6 characters): ' db_username
+while [[ ! $db_username =~ $db_regex ]]
+do
+	echo "Try again (can only contain numerals 0-9, basic Latin letters, both lowercase and uppercase, dollar sign and underscore)"
+	read -p 'Enter Database Username(at least 6 characters): ' db_username
+	sleep 1
+done
+# set parameter, Database User
+echo $db_username >> $(pwd)/docker/create_pub_values.txt
+echo "Ok."
+
+db_password=""
+password_regex="^[a-zA-Z0-9\._-]{6,}$"
+read -p 'Enter Database Password(at least 6 characters): ' db_password
+while [[ ! $db_password =~ $password_regex ]]
+do
+	echo "Try again (can only contain numerals 0-9, basic Latin letters, both lowercase and uppercase, dot, underscore and minus sign)"
+	read -p 'Enter Database Password(at least 6 characters): ' db_password
+	sleep 1
+done
+# set parameter, Database Password
+echo $db_password >> $(pwd)/docker/create_pub_values.txt
+echo "Ok."
+
+# set parameter, Database Engine [InnoDB]
+echo "InnoDB" >> $(pwd)/docker/create_pub_values.txt
+
+# set parameter, Write these database settings? [yes]
+echo "yes" >> $(pwd)/docker/create_pub_values.txt
+
+# set parameter, Create database [yes]
+echo "yes" >> $(pwd)/docker/create_pub_values.txt
+
+mysql_root_password=""
+read -p 'Enter MariaDb/Mysql Root Password(at least 6 characters): ' mysql_root_password
+while [[ ! $mysql_root_password =~ $password_regex ]]
+do
+	echo "Try again (can only contain numerals 0-9, basic Latin letters, both lowercase and uppercase, dot, underscore and minus sign)"
+	read -p 'Enter MariaDb/Mysql Root Password(at least 6 characters): ' mysql_root_password
+	sleep 1
+done
+# set parameter, Database Superuser Username
+echo "root" >> $(pwd)/docker/create_pub_values.txt
+# set parameter, Database Superuser Password
+echo $mysql_root_password >> $(pwd)/docker/create_pub_values.txt
+echo "Ok."
+
+# set parameter, Create database tables? [yes]
+echo "yes" >> $(pwd)/docker/create_pub_values.txt
+
+# set parameter, Create an initial user? [yes]
+echo "yes" >> $(pwd)/docker/create_pub_values.txt
+
+# set parameter, Enter a username [admin]
+echo "admin" >> $(pwd)/docker/create_pub_values.txt
+
+# set parameter, Select a user type (user|editor|admin) [admin]
+echo "admin" >> $(pwd)/docker/create_pub_values.txt
+
+# set parameter, Enter Password for admin
+echo "admin123" >> $(pwd)/docker/create_pub_values.txt
+
+# set parameter, Enter Email for admin
+echo $email >> $(pwd)/docker/create_pub_values.txt
+
+# set parameter, Do you want to build the static web pages? [yes]
+echo "yes" >> $(pwd)/docker/create_pub_values.txt
+
+# set parameter, Do you want to import the LOC subjects and sample divisions? [yes]
+echo "yes" >> $(pwd)/docker/create_pub_values.txt
+
+# set parameter, Do you want to update the apache config files? (you still need to add the 'Include' line) [yes]
+echo "yes" >> $(pwd)/docker/create_pub_values.txt
+
+pma_username=""
+read -p 'Enter PhpMyAdmin Username(at least 6 characters): ' pma_username
+while [[ ! $pma_username =~ $db_regex ]]
+do
+	echo "Try again (can only contain numerals 0-9, basic Latin letters, both lowercase and uppercase, dollar sign and underscore)"
+	read -p 'Enter PhpMyAdmin Username(at least 6 characters): ' pma_username
+	sleep 1
+done
+echo "Ok."
+
+pma_password=""
+read -p 'Enter PhpMyAdmin Password(at least 6 characters): ' pma_password
+while [[ ! $pma_password =~ $password_regex ]]
+do
+	echo "Try again (can only contain numerals 0-9, basic Latin letters, both lowercase and uppercase, dot, underscore and minus sign)"
+	read -p 'Enter PhpMyAdmin Password(at least 6 characters): ' pma_password
+	sleep 1
+done
+echo "Ok."
+
+which_db=""
+db_authentication_password=$pma_password
+db_package_manager="apt-get update \&\& apt-get install -y gettext-base"
+db_admin_commandline="mariadb-admin"
+db_client_library="mariadb-client libmariadb-dev"
+PS3="Select the database: "
+select db in mariadb mysql
+do
+	which_db=$db
+	if [ $REPLY -eq 2 ]
+	then
+		db_package_manager="microdnf install -y gettext"
+		db_admin_commandline="mysqladmin"
+		db_client_library="mysql-client libmysqlclient-dev"
+	fi
+	if [ $REPLY -eq 1 ] || [ $REPLY -eq 2 ]
+	then
+		break
+	else
+		PS3="Select the database: "
+	fi
+done
+echo "Ok."
+
+local_timezone_regex="^[a-zA-Z0-9/+_-]{1,}$"
+read -p 'Enter container local Timezone(default : America/Los_Angeles, to see the other timezones, https://docs.diladele.com/docker/timezones.html): ' local_timezone
+: ${local_timezone:=America/Los_Angeles}
+while [[ ! $local_timezone =~ $local_timezone_regex ]]
+do
+	echo "Try again (can only contain numerals 0-9, basic Latin letters, both lowercase and uppercase, positive, minus sign and underscore)"
+	read -p 'Enter container local Timezone(default : America/Los_Angeles, to see the other local timezones, https://docs.diladele.com/docker/timezones.html): ' local_timezone
+	sleep 1
+	: ${local_timezone:=America/Los_Angeles}
+done
+local_timezone=${local_timezone//[\/]/\\\/}
+echo "Ok."
+
+read -p "Apply changes (y/n)? " choice
+case "$choice" in
+  y|Y ) clear; echo ""; echo "Yes! Proceeding now...";;
+  n|N ) echo "No! Aborting now..."; exit 0;;
+  * ) echo "Invalid input! Aborting now..."; exit 0;;
+esac
+
+\cp ./phpmyadmin/apache2/sites-available/default-ssl.sample.conf ./phpmyadmin/apache2/sites-available/default-ssl.conf
+\cp ./database/phpmyadmin/sql/create_tables.sql.template.example ./database/phpmyadmin/sql/create_tables.sql.template
+
+\cp env.example .env
+
+sed -i 's/db_authentication_password/'$db_authentication_password'/' ./database/phpmyadmin/sql/create_tables.sql.template
+sed -i "s/db_package_manager/$db_package_manager/" .env
+sed -i 's/db_admin_commandline/'$db_admin_commandline'/' .env
+sed -i "s/db_client_library/$db_client_library/" .env
+sed -i "s/example.com/$subdomain.$domain_name/" .env
+sed -i 's/archive_id/'$archive_id'/' .env
+sed -i 's/example.com/'$domain_name'/g' ./phpmyadmin/apache2/sites-available/default-ssl.conf
+sed -i 's/email@domain.com/'$email'/' .env
+sed -i "s/ssl_snippet/$ssl_snippet/" .env
+sed -i 's/which_db/'$which_db'/g' .env
+sed -i 's/db_username/'$db_username'/g' .env
+sed -i 's/db_password/'$db_password'/g' .env
+sed -i 's/db_name/'$db_name'/' .env
+sed -i 's/mysql_root_password/'$mysql_root_password'/' .env
+sed -i 's/pma_username/'$pma_username'/' .env
+sed -i 's/pma_password/'$pma_password'/' .env
+sed -i 's/pma_controluser/'$pma_username'/g' ./database/phpmyadmin/sql/create_tables.sql.template
+sed -i "s@directory_path@$(pwd)@" .env
+sed -i 's/local_timezone/'$local_timezone'/' .env
+
+if [ -x "$(command -v docker)" ] && [ "$(docker compose version)" ]; then
+	# Firstly: create external volume
+	docker volume create --driver local --opt type=none --opt device=`pwd`/certbot --opt o=bind certbot-etc > /dev/null
+	# installing EPrints and the other services
+	docker compose up -d & export pid=$!
+	echo "EPrints and the other services installing proceeding..."
+	echo ""
+	wait $pid
+	if [ $? -eq 0 ]; then
+		# installing portainer
+		docker compose -f portainer-docker-compose.yml -p portainer up -d & export pid=$!
+		echo ""
+		echo "portainer installing proceeding..."
+		wait $pid
+		if [ $? -ne 0 ]; then
+			echo "Error! could not installed portainer" >&2
+			exit 1
+		else
+			echo ""
+			until [ -n "$(sudo find ./certbot/live -name '$domain_name' 2>/dev/null | head -1)" ]; do
+				echo "waiting for Let's Encrypt certificates for $domain_name"
+				sleep 5s & wait ${!}
+				if sudo [ -d "./certbot/live/$domain_name" ]; then break; fi
+			done
+			echo "Ok."
+			#until [ ! -z `docker compose ps -a --filter "status=running" --services | grep webserver` ]; do
+			#	echo "waiting starting webserver container"
+			#	sleep 2s & wait ${!}
+			#	if [ ! -z `docker compose ps -a --filter "status=running" --services | grep webserver` ]; then break; fi
+			#done
+			echo ""
+			echo "Reloading webserver ssl configuration"
+			docker container restart webserver > /dev/null 2>&1
+			echo "Ok."
+			echo ""
+			echo "completed setup"
+			echo ""
+			echo "EPrints: https://$subdomain.$domain_name"
+			echo "Portainer: https://$subdomain.$domain_name:9001"
+			echo "phpMyAdmin: https://$subdomain.$domain_name:9090"
+			echo ""
+			echo "Ok."
+		fi
+	else
+		echo ""
+		echo "Error! could not installed EPrints and the other services with docker compose" >&2
+		echo ""
+		exit 1
+	fi
+else
+	echo ""
+	echo "not found docker and/or docker compose, Install docker and/or docker compose" >&2
+	echo ""
+	exit 1
+fi
