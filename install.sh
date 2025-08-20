@@ -405,7 +405,7 @@ then
 	sudo mkcert -uninstall && mkcert -install && mkcert -key-file privkey.pem -cert-file chain.pem *.$domain_name && sudo cat privkey.pem chain.pem > fullchain.pem && sudo mkdir -p ../certbot/live/$subdomain.$domain_name && sudo mv *.pem ../certbot/live/$subdomain.$domain_name && cd ..
 	echo "Ok."
 else
-	ssl_snippet="certbot certonly --webroot --webroot-path \/tmp\/acme-challenge --rsa-key-size 4096 --non-interactive --agree-tos --no-eff-email --force-renewal --email \$\{LETSENCRYPT_EMAIL\} -d \$\{SUBDOMAIN\}.\$\{DOMAIN_NAME\} -d www.\$\{SUBDOMAIN\}.\$\{DOMAIN_NAME\}"
+	ssl_snippet="certbot certonly --webroot --webroot-path \/tmp\/acme-challenge --rsa-key-size 4096 --non-interactive --agree-tos --no-eff-email --force-renewal --email \$\{LETSENCRYPT_EMAIL\} -d \$\{DOMAIN_NAME\} -d www.\$\{DOMAIN_NAME\}"
 fi
 
 # set parameter, Webserver Port [80]
