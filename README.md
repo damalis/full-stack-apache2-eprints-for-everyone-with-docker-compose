@@ -132,7 +132,7 @@ DATABASE_CONT_NAME=```mariadb```, ```mysql``` or ```custom name```\
 DATABASE_PACKAGE_MANAGER=```apt-get update && apt-get install -y gettext-base``` for mariadb, ```microdnf install -y gettext``` for mysql\
 DATABASE_ADMIN_COMMANDLINE=```mariadb-admin``` for mariadb, ```mysqladmin``` for mysql\
 SSL_SNIPPET=```echo 'Generated Self-signed SSL Certificate at localhost'``` for localhost\
-SSL_SNIPPET=```certbot certonly --webroot --webroot-path /tmp/acme-challenge --rsa-key-size 4096 --non-interactive --agree-tos --no-eff-email --force-renewal --email ${LETSENCRYPT_EMAIL} -d ${DOMAIN_NAME} -d www.${DOMAIN_NAME}``` for remotehost
+SSL_SNIPPET=```certbot certonly --webroot --webroot-path /tmp/acme-challenge --rsa-key-size 4096 --non-interactive --agree-tos --no-eff-email --force-renewal --email ${LETSENCRYPT_EMAIL} -d ${SUBDOMAIN}.${DOMAIN_NAME} -d www.${SUBDOMAIN}.${DOMAIN_NAME}``` for remotehost
 
 and
 
