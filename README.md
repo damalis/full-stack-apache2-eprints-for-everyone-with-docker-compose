@@ -141,14 +141,16 @@ Set DNS Localhost configuration of your subdomain.domain name:
 add your custom ```subdomain.example.com``` in the ```/etc/hosts``` file.
 
 ```
-cp ./webserver/extra/http-ssl.conf.template ./webserver/extra/http-ssl.conf
+cp ./webserver/extra/httpd-ssl.conf.template ./webserver/extra/httpd-ssl.conf
 ```
+
+change example.com to your subdomain.domain name in ```./webserver/extra/httpd-ssl.conf``` file.
 
 ```
 cp ./phpmyadmin/apache2/sites-available/default-ssl.sample.conf ./phpmyadmin/apache2/sites-available/default-ssl.conf
 ```
 
-change example.com to your domain name in ```./phpmyadmin/apache2/sites-available/default-ssl.conf``` file.
+change example.com to your subdomain.domain name in ```./phpmyadmin/apache2/sites-available/default-ssl.conf``` file.
 
 ```
 cp ./database/phpmyadmin/sql/create_tables.sql.template.example ./database/phpmyadmin/sql/create_tables.sql.template
