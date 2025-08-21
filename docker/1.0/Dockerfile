@@ -29,12 +29,11 @@ WORKDIR /opt/eprints3
 RUN chown eprints:eprints /opt/eprints3
 RUN chmod 2775 /opt/eprints3
 
-RUN rm -f /opt/eprints3/README.md
-
 USER eprints
 
 RUN git config --global --add safe.directory /opt/eprints3
 RUN git config --global http.sslVerify false
+RUN rm -f /opt/eprints3/README.md
 RUN git clone https://github.com/eprints/eprints3.4.git /opt/eprints3
 RUN git checkout tags/v3.4.6
 RUN mv /opt/eprints3/perl_lib/EPrints/SystemSettings.pm.tmpl /opt/eprints3/perl_lib/EPrints/SystemSettings.pm

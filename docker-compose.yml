@@ -76,7 +76,7 @@ services:
             retries: 100
         environment:
             TZ: '${LOCAL_TIMEZONE}'
-        command: bash -c "apt-get -y update && dpkg --configure -a && if ! getent passwd 'eprints'>/dev/null; then useradd eprints; fi && export APACHE_RUN_USER=eprints && export APACHE_RUN_GROUP=eprints && sh /tmp/packagecheck.sh 'gettext libapache2-mod-perl2 libcgi-session-perl libdbd-mysql-perl libio-string-perl libjson-perl libxml-parser-perl libxml-libxml-perl libtext-unidecode-perl' && sh /tmp/ssl-conf.sh '${DOMAIN_NAME}' '${LETSENCRYPT_CONF_PREFIX}' '${HTTPD_PREFIX}/conf'"
+        command: bash -c "apt-get -y update && dpkg --configure -a && if ! getent passwd 'eprints'>/dev/null; then useradd eprints; fi && export APACHE_RUN_USER=eprints && export APACHE_RUN_GROUP=eprints && sh /tmp/packagecheck.sh 'gettext libapache2-mod-perl2 libcgi-session-perl libdbd-mysql-perl libio-string-perl libjson-perl libxml-parser-perl libxml-libxml-perl libtext-unidecode-perl' && sh /tmp/ssl-conf.sh '${SUBDOMAIN}.${DOMAIN_NAME}' '${LETSENCRYPT_CONF_PREFIX}' '${HTTPD_PREFIX}/conf'"
 
     certbot:
         depends_on:
@@ -92,7 +92,7 @@ services:
             - '/tmp/acme-challenge:/tmp/acme-challenge'
         restart: unless-stopped
         healthcheck:
-            test: ["CMD-SHELL", "test -d ${LETSENCRYPT_CONF_PREFIX}/live/${DOMAIN_NAME} || exit 1"]
+            test: ["CMD-SHELL", "test -d ${LETSENCRYPT_CONF_PREFIX}/live/${SUBDOMAIN}.${DOMAIN_NAME} || exit 1"]
             interval: 5s
             timeout: 5s
             retries: 20

@@ -66,7 +66,6 @@ Create rules to open ports to the internet, or to a specific IPv4 address or ran
 - [Portainer Installation](#portainer)
 - [Usage](#usage)
 	- [EPrints](#eprints)
-	- [Website](#website)
 	- [Webserver](#webserver)
 	- [phpMyAdmin](#phpmyadmin)
 	- [backup](#backup)
@@ -122,7 +121,7 @@ Copy the example environment into `.env`
 cp env.example .env
 ```
 
-Edit the `.env` file to change values of ```LOCAL_TIMEZONE```, ```DOMAIN_NAME```, ```DIRECTORY_PATH```, ```LETSENCRYPT_EMAIL```, ```DB_USER```, ```DB_PASSWORD```, ```DB_NAME```, ```MYSQL_ROOT_PASSWORD```, ```DATABASE_IMAGE_NAME```, ```DATABASE_CONT_NAME```, ```DATABASE_PACKAGE_MANAGER```, ```DATABASE_ADMIN_COMMANDLINE```, ```PMA_CONTROLUSER```, ```PMA_CONTROLPASS```, ```PMA_HTPASSWD_USERNAME```, ```PMA_HTPASSWD_PASSWORD``` and ```SSL_SNIPPET```.
+Edit the `.env` file to change values of ```LOCAL_TIMEZONE```, ```SUBDOMAIN```, ```DOMAIN_NAME```, ```DIRECTORY_PATH```, ```LETSENCRYPT_EMAIL```, ```DB_USER```, ```DB_PASSWORD```, ```DB_NAME```, ```MYSQL_ROOT_PASSWORD```, ```DATABASE_IMAGE_NAME```, ```DATABASE_CONT_NAME```, ```DATABASE_PACKAGE_MANAGER```, ```DATABASE_ADMIN_COMMANDLINE```, ```PMA_CONTROLUSER```, ```PMA_CONTROLPASS```, ```PMA_HTPASSWD_USERNAME```, ```PMA_HTPASSWD_PASSWORD``` and ```SSL_SNIPPET```.
 
 LOCAL_TIMEZONE=[to see local timezones](https://docs.diladele.com/docker/timezones.html)
 
@@ -138,7 +137,7 @@ and
 
 Set DNS Localhost configuration of your subdomain.domain name:
 
-add your custom ```subdomain.example.com``` in the ```/etc/hosts``` file.
+add your custom ```127.0.1.1 example.com``` and ```127.0.1.1 subdomain.example.com``` in the ```/etc/hosts``` file.
 
 ```
 cp ./webserver/extra/httpd-ssl.conf.template ./webserver/extra/httpd-ssl.conf
