@@ -640,7 +640,7 @@ sed -i 's/db_authentication_password/'$db_authentication_password'/' ./database/
 sed -i "s/db_package_manager/$db_package_manager/" .env
 sed -i 's/db_admin_commandline/'$db_admin_commandline'/' .env
 sed -i "s/db_client_library/$db_client_library/" .env
-sed -i "s/example.com/$subdomain.$domain_name/" .env
+sed -i 's/example.com/'$domain_name'/' .env
 sed -i 's/subdomain/'$subdomain'/' .env
 sed -i 's/archive_id/'$archive_id'/' .env
 sed -i 's/example.com/'$domain_name'/g' ./phpmyadmin/apache2/sites-available/default-ssl.conf
