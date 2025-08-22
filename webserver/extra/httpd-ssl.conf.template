@@ -118,14 +118,12 @@ SSLSessionCacheTimeout  300
 ## SSL Virtual Host Context
 ##
 
-#PerlTransHandler +EPrints::Apache::Rewrite
-
 <VirtualHost *:443>
 
 #   General setup for the virtual host
 DocumentRoot "/opt/eprints3"
-ServerName example.com
-ServerAlias www.example.com
+ServerName subdomain.example.com
+ServerAlias www.subdomain.example.com
 ServerAdmin admin@example.com
 
 # Enable HSTS
@@ -143,7 +141,7 @@ SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown downgrade-1.0 fo
 </FilesMatch>
 
 LogLevel warn
-ErrorLog logs/example.com-443.error_log
+ErrorLog logs/subdomain.example.com-443.error_log
 TransferLog logs/ssl_access_log
 CustomLog logs/ssl_request_log "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
 
@@ -316,3 +314,9 @@ CustomLog "/usr/local/apache2/logs/ssl_request_log" \
 
 </VirtualHost>
 
+<VirtualHost _default_:443>
+  ServerName example.com
+  ServerAlias www.example.com
+
+  Redirect "/" "http://example.com/"
+</VirtualHost>

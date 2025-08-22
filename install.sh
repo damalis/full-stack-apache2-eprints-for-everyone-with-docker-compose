@@ -402,7 +402,7 @@ then
 		exit 0
 	fi
 	sudo rm -Rf mkcert && git clone https://github.com/FiloSottile/mkcert && cd mkcert && go build -ldflags "-X main.Version=$(git describe --tags)"
-	sudo mkcert -uninstall && mkcert -install && mkcert -key-file privkey.pem -cert-file chain.pem *.$domain_name && sudo cat privkey.pem chain.pem > fullchain.pem && sudo mkdir -p ../certbot/live/$subdomain.$domain_name && sudo mv *.pem ../certbot/live/$subdomain.$domain_name && cd ..
+	sudo mkcert -uninstall && mkcert -install && mkcert -key-file privkey.pem -cert-file chain.pem $domain_name *.$domain_name && sudo cat privkey.pem chain.pem > fullchain.pem && sudo mkdir -p ../certbot/live/$domain_name && sudo mv *.pem ../certbot/live/$domain_name && cd ..
 	echo "Ok."
 else
 	ssl_snippet="certbot certonly --webroot --webroot-path \/tmp\/acme-challenge --rsa-key-size 4096 --non-interactive --agree-tos --no-eff-email --force-renewal --email \$\{LETSENCRYPT_EMAIL\} -d \$\{DOMAIN_NAME\} -d www.\$\{DOMAIN_NAME\} -d \$\{SUBDOMAIN\}.\$\{DOMAIN_NAME\}"
@@ -695,8 +695,8 @@ if [ -x "$(command -v docker)" ] && [ "$(docker compose version)" ]; then
 			echo "completed setup"
 			echo ""
 			echo "EPrints: https://$subdomain.$domain_name"
-			echo "Portainer: https://$subdomain.$domain_name:9001"
-			echo "phpMyAdmin: https://$subdomain.$domain_name:9090"
+			echo "Portainer: https://$domain_name:9001"
+			echo "phpMyAdmin: https://$domain_name:9090"
 			echo ""
 			echo "Ok."
 		fi

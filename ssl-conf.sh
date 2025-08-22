@@ -14,7 +14,7 @@ use_lets_encrypt_certificates() {
 	echo "switching webserver to use Let's Encrypt certificate for $1"
 	sed 's/#LoadModule/LoadModule/' $3/extra/httpd-vhosts.conf > $3/extra/httpd-vhosts.conf.bak
 	cp $3/extra/httpd-ssl.conf.template $3/extra/httpd-ssl.conf
-	sed 's/example.com/'$1'/g' $3/extra/httpd-ssl.conf > $3/extra/httpd-ssl.conf.bak
+	sed 's/example.com/'$1'/g;s/subdomain/'$4'/g' $3/extra/httpd-ssl.conf > $3/extra/httpd-ssl.conf.bak
 	sed '/^#\(.*\)httpd-ssl\.conf/ s/^#//' $3/httpd.conf > $3/httpd.conf.bak
 }
 
@@ -39,7 +39,7 @@ wait_for_lets_encrypt() {
 			if [ -d "$2/live/$1" ]; then break; fi
 		done
 	fi;
-	use_lets_encrypt_certificates "$1" "$2" "$3"
+	use_lets_encrypt_certificates "$1" "$2" "$3" "$4"
 	reload_webserver "$3"
 }
 
