@@ -118,6 +118,10 @@ SSLSessionCacheTimeout  300
 ## SSL Virtual Host Context
 ##
 
+# Load the perl modules & repository configurations
+PerlSwitches -I/opt/eprints3/perl_lib
+Include /opt/eprints3/cfg/perl_module_isolation.conf
+
 <VirtualHost *:443>
 
 #   General setup for the virtual host
@@ -314,9 +318,9 @@ CustomLog "/usr/local/apache2/logs/ssl_request_log" \
 
 </VirtualHost>
 
-<VirtualHost _default_:443>
-  ServerName example.com
-  ServerAlias www.example.com
+#<VirtualHost _default_:443>
+#  ServerName example.com
+#  ServerAlias www.example.com
 
-  Redirect "/" "http://example.com/"
-</VirtualHost>
+#  Redirect "/" "http://example.com/"
+#</VirtualHost>
