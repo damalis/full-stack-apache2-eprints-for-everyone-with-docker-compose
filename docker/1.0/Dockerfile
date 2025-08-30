@@ -26,22 +26,6 @@ RUN usermod -a -G www-data eprints
 
 WORKDIR /opt/eprints3
 
-RUN chown eprints:eprints /opt/eprints3
-RUN chmod 2775 /opt/eprints3
-
-USER eprints
-
-RUN git config --global --add safe.directory /opt/eprints3
-RUN git config --global http.sslVerify false
-RUN git clone https://github.com/eprints/eprints3.4.git /opt/eprints3
-RUN git checkout tags/v3.4.6
-RUN mv /opt/eprints3/perl_lib/EPrints/SystemSettings.pm.tmpl /opt/eprints3/perl_lib/EPrints/SystemSettings.pm
-
-RUN chown -R eprints /opt/eprints3
-
-# switch root
-USER root
-
 # EXPOSE the port(s) your application will listen on.
 # This tells Docker (and anyone inspecting the image) that EPrints listens on port 80 (HTTP).
 # You can specify TCP (default) or UDP.

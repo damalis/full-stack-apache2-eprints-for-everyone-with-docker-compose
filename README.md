@@ -67,6 +67,7 @@ Create rules to open ports to the internet, or to a specific IPv4 address or ran
 - [Usage](#usage)
 	- [EPrints](#eprints)
 	- [Webserver](#webserver)
+	- [Website](#website)
 	- [phpMyAdmin](#phpmyadmin)
 	- [backup](#backup)
 
@@ -298,6 +299,17 @@ Password: admin123
 
 add and/or remove EPrints site folders and files with any ftp client program in ```./eprints``` folder.
 <br />You can also visit `https://subdomain.example.com` to access EPrints after starting the containers.
+
+### Website
+
+You should see the "Hello, World!" page in your browser. If not, please check if your PERL installation satisfies requirements.
+
+```
+https://example.com
+```
+
+add and/or remove website site folders and files with any ftp client program in ```./website``` folder.
+<br />You can also visit `https://example.com` to access website after starting the containers.
 
 #### Webserver
 

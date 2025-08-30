@@ -46,7 +46,7 @@ wait_for_lets_encrypt() {
 if [ ! -d "$2/live/$1" ]; then
 	wait_for_lets_encrypt "$1" "$2" "$3" &
 else
-	use_lets_encrypt_certificates "$1" "$2" "$3"
+	use_lets_encrypt_certificates "$1" "$2" "$3" "$4"
 	reload_webserver "$3"
 fi
 

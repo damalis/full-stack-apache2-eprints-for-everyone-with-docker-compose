@@ -118,38 +118,37 @@ SSLSessionCacheTimeout  300
 ## SSL Virtual Host Context
 ##
 
-# Load the perl modules & repository configurations
-PerlSwitches -I/opt/eprints3/perl_lib
-Include /opt/eprints3/cfg/perl_module_isolation.conf
-
-<VirtualHost *:443>
+<VirtualHost _default_:443>
 
 #   General setup for the virtual host
-DocumentRoot "/opt/eprints3"
-ServerName subdomain.example.com
-ServerAlias www.subdomain.example.com
+DocumentRoot "/var/www/html"
+ServerName example.com
+ServerAlias www.example.com
 ServerAdmin admin@example.com
 
-# Enable HSTS
-# Header always set Strict-Transport-Security "max-age=63072000;"
+ErrorLog "/usr/local/apache2/logs/example.com.error_log"
+TransferLog "/usr/local/apache2/logs/access_log"
 
 Protocols h2 http/1.1
 
-SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown downgrade-1.0 force-response-1.0
+<Directory "/var/www/html">
+	DirectoryIndex index.pl
+	Options +ExecCGI
+	AddHandler cgi-script .pl
+	AllowOverride All
+	<IfModule mod_authz_core.c>
+		Require all granted
+	</IfModule>
+</Directory>
 
-# Proxy .cgi and/or .pl requests to port 9000 of the eprints container
-<FilesMatch \.pl$>
-        SetHandler proxy:fcgi://eprints:9000
-        # for Unix sockets, Apache 2.4.10 or higher
-        # SetHandler proxy:unix:/path/to/fpm.sock|fcgi://dummy
-</FilesMatch>
-
-LogLevel warn
-ErrorLog logs/subdomain.example.com-443.error_log
-TransferLog logs/ssl_access_log
-CustomLog logs/ssl_request_log "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
-
-Include /opt/eprints3/cfg/apache_ssl.conf
+ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
+<Directory "/usr/lib/cgi-bin">
+	Options +ExecCGI
+	AddHandler cgi-script .pl
+    <IfModule mod_authz_core.c>
+		Require all granted
+	</IfModule>
+</Directory>
 
 #   SSL Engine Switch:
 #   Enable/Disable SSL for this virtual host.
@@ -318,9 +317,42 @@ CustomLog "/usr/local/apache2/logs/ssl_request_log" \
 
 </VirtualHost>
 
-#<VirtualHost _default_:443>
-#  ServerName example.com
-#  ServerAlias www.example.com
+# Load the perl modules & repository configurations
+PerlSwitches -I/opt/eprints3/perl_lib
+Include /opt/eprints3/cfg/perl_module_isolation.conf
 
-#  Redirect "/" "http://example.com/"
-#</VirtualHost>
+<VirtualHost *:443>
+
+DocumentRoot "/opt/eprints3"
+ServerName subdomain.example.com
+
+# Enable HSTS
+# Header always set Strict-Transport-Security "max-age=63072000;"
+
+SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown downgrade-1.0 force-response-1.0
+
+# Proxy .cgi and/or .pl requests to port 9000 of the eprints container
+<FilesMatch \.pl$>
+        SetHandler proxy:fcgi://eprints:9000
+        # for Unix sockets, Apache 2.4.10 or higher
+        # SetHandler proxy:unix:/path/to/fpm.sock|fcgi://dummy
+</FilesMatch>
+
+SSLEngine on
+
+# Intermediate configuration, tweak to your needs
+SSLProtocol             all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
+SSLCipherSuite          ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256
+
+SSLCertificateFile "/etc/letsencrypt/live/example.com/fullchain.pem"
+SSLCertificateKeyFile "/etc/letsencrypt/live/example.com/privkey.pem"
+SSLCertificateChainFile "/etc/letsencrypt/live/example.com/chain.pem"
+
+LogLevel warn
+ErrorLog logs/subdomain.example.com-443.error_log
+TransferLog logs/ssl_access_log
+CustomLog logs/ssl_request_log "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+
+Include /opt/eprints3/cfg/apache_ssl.conf
+
+</VirtualHost>

@@ -10,9 +10,7 @@ services:
             args:
                  ARCHIVE_ID: '${ARCHIVE_ID}'
         #image: 'damalis/eprints3/debian'
-        #user: eprints
         tty: true
-        stdin_open: true
         container_name: eprints
         networks:
             - backend
@@ -37,7 +35,8 @@ services:
             TZ: '${LOCAL_TIMEZONE}'
         labels:
             - 'docker-volume-backup.stop-during-backup=true'
-        command: bash -c "if [ ! -d \"${EPRINTS_DOC_ROOT}/archives/${ARCHIVE_ID}\" ]; then sleep 10 && su -c '${EPRINTS_DOC_ROOT}/bin/epadmin create pub < /tmp/create_pub_values.txt; trap exit TERM;' - eprints; else su -c '${EPRINTS_DOC_ROOT}/bin/epadmin test ${ARCHIVE_ID} --verbose' - eprints; fi; service cron start; tail -f /dev/null"
+        command: bash -c "if [ ! -d \"${EPRINTS_DOC_ROOT}/archives/${ARCHIVE_ID}\" ]; then rm -f ${EPRINTS_DOC_ROOT}/README.md && git config --global --add safe.directory /opt/eprints3 && git clone https://github.com/eprints/eprints3.4.git ${EPRINTS_DOC_ROOT} && git checkout tags/v3.4.6 && mv ${EPRINTS_DOC_ROOT}/perl_lib/EPrints/SystemSettings.pm.tmpl ${EPRINTS_DOC_ROOT}/perl_lib/EPrints/SystemSettings.pm && chown -R eprints:eprints ${EPRINTS_DOC_ROOT} && chmod 2775 ${EPRINTS_DOC_ROOT} 
+            && su -c '${EPRINTS_DOC_ROOT}/bin/epadmin create pub < /tmp/create_pub_values.txt; trap exit TERM' - eprints; else su -c '${EPRINTS_DOC_ROOT}/bin/epadmin test ${ARCHIVE_ID} --verbose' - eprints; fi; service cron start; tail -f /dev/null"
 
     webserver:
         depends_on:
@@ -50,6 +49,7 @@ services:
             - frontend
         volumes:
             - 'eprints:${EPRINTS_DOC_ROOT}'
+            - 'website:${WEBSERVER_DOC_ROOT}'
             - type: bind
               source: ./webserver
               target: '${HTTPD_PREFIX}/conf'
@@ -214,6 +214,13 @@ volumes:
         driver_opts:
             type: none
             device: ${DIRECTORY_PATH}/eprints
+            o: bind
+    website:
+        name: website-html
+        driver: local
+        driver_opts:
+            type: none
+            device: ${DIRECTORY_PATH}/website
             o: bind
     db:
         name: ${DATABASE_CONT_NAME}-data
