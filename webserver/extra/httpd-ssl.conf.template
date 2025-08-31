@@ -131,11 +131,20 @@ TransferLog "/usr/local/apache2/logs/access_log"
 
 Protocols h2 http/1.1
 
+# Configure a directory to handle Perl scripts
 <Directory "/var/www/html">
 	DirectoryIndex index.pl
+	# Allow the execution of Perl scripts
 	Options +ExecCGI
-	AddHandler cgi-script .pl
-	AllowOverride All
+
+	# Use mod_perl to handle files
+	SetHandler perl-script
+	PerlResponseHandler ModPerl::Registry
+
+	# Enable parsing of headers for proper HTTP response handling
+	PerlOptions +ParseHeaders
+
+	# Grant access
 	<IfModule mod_authz_core.c>
 		Require all granted
 	</IfModule>
@@ -145,7 +154,7 @@ ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
 <Directory "/usr/lib/cgi-bin">
 	Options +ExecCGI
 	AddHandler cgi-script .pl
-    <IfModule mod_authz_core.c>
+	<IfModule mod_authz_core.c>
 		Require all granted
 	</IfModule>
 </Directory>
