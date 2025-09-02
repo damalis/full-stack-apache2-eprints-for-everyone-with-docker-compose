@@ -3,7 +3,7 @@
 If You want to build a EPrints at short time;
 
 #### Full stack Apache2 EPrints:
-<p align="left"> <a href="https://www.eprints.org/" target="_blank" rel="noreferrer"> <img src="https://avatars.githubusercontent.com/u/1876739?s=200&v=4" alt="eprints" height="40" width="40"/> </a>&nbsp;&nbsp;&nbsp;
+<p align="left"> <a href="https://www.eprints.org/" target="_blank" rel="noreferrer" style="text-decoration: none;"> <img src="https://avatars.githubusercontent.com/u/1876739?s=200&v=4" alt="eprints" height="40" width="40"/> </a>&nbsp;&nbsp;&nbsp;
 <a href="https://www.docker.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/docker/docker.png" alt="docker" width="40" height="40" width="40"/> </a>&nbsp;&nbsp;&nbsp;
 <a href="https://mariadb.org/" target="_blank" rel="noreferrer"> <img src="https://avatars.githubusercontent.com/u/5877084?s=200&v=4" alt="mariadb" height="50" width="50"/> </a>&nbsp;&nbsp;&nbsp;
 <a href="https://dev.mysql.com/" target="_blank" rel="noreferrer"> <img src="https://avatars.githubusercontent.com/u/2452804?s=200&v=4" alt="mysql" height="50" width="50"/> </a>&nbsp;&nbsp;&nbsp;
@@ -168,13 +168,13 @@ docker volume create --driver local --opt type=none --opt device=${PWD}/certbot 
 for localhost ssl: Generate Self-signed SSL Certificate with guide [mkcert repository](https://github.com/FiloSottile/mkcert).
 
 ```
-docker compose up -d
+docker compose up -d	# Starts services in detached mode (in the background)
 ```
 
-then reloading for webserver ssl configuration
+then
 
 ```
-docker container restart webserver
+docker container restart webserver	# reloading for webserver ssl configuration
 ```
 
 The containers are now built and running. You should be able to access the EPrints installation with the configured IP in the browser address. `https://example.com`.
@@ -193,95 +193,65 @@ You can also visit `https://example.com:9001` to access portainer after starting
 
 ## Usage
 
-#### You could manage docker containers without command line with portainer.
+### You could manage docker containers without command line with portainer.
 
-### Show both running and stopped containers
-
-The docker ps command only shows running containers by default. To see all containers, use the -a (or --all) flag:
+### Here’s a quick reference of commonly used Docker Compose commands
 
 ```
-docker ps -a
+docker ps -a	# Lists containers managed by the compose file, To see all containers, use the -a (or --all) flag
 ```
 
-### Starting containers
-
-You can start the containers with the `up` command in daemon mode (by adding `-d` as an argument) or by using the `start` command:
-
 ```
-docker compose start
+docker compose start	# Starts previously stopped containers
 ```
 
-### Stopping containers
-
 ```
-docker compose stop
+docker compose stop	# Stops all running containers
 ```
 
-### Removing containers
-
-To stop and remove all the containers use the `down` command:
-
 ```
-docker compose down
+docker compose down	# Stops and removes containers, networks, etc.
 ```
 
-to remove portainer and the other containers:
-
 ```
-docker rm -f $(docker ps -a -q)
+docker compose down -v # Add --volumes to remove volumes explicitly
 ```
 
-Use `-v` if you need to remove the database volume which is used to persist the database:
-
 ```
-docker compose down -v
+docker rm -f $(docker ps -a -q)	# to remove portainer and the other containers
 ```
 
-to remove external certbot-etc and portainer and the other volumes:
-
 ```
-docker volume rm $(docker volume ls -q)
+docker volume rm $(docker volume ls -q)	# to remove external certbot-etc and portainer and the other volumes
 ```
 
-Delete all images, containers, volumes, and networks that are not associated with a container (dangling):
-
 ```
-docker system prune
+docker system prune	# Removes unused data (containers, networks, images, and optionally volumes)
 ```
 
-To additionally remove any stopped containers and all unused images (not just dangling ones), add the -a flag to the command:
-
 ```
-docker system prune -a
+docker system prune -a	# Removes all unused images, not just dangling ones
 ```
 
-to remove portainer and the other images:
-
 ```
-docker rmi $(docker image ls -q)
+docker rmi $(docker image ls -q)	# Removes portainer and the other images
 ```
 
-### Logs containers
-
-To fetch the logs of a container.
-
 ```
-docker container logs container_name_or_id
+docker container logs container_name_or_id	# Shows logs from all services
 ```
 
 ### Project from existing source
 
 Copy all files into a new directory:
 
-You can now use the `up` command:
-
 ```
-docker compose up -d
+docker compose up -d	# Starts services in detached mode (in the background)
 ```
 
-### Docker run reference
+### docker compose reference
 
-[https://docs.docker.com/engine/reference/run/](https://docs.docker.com/engine/reference/run/)
+[https://docs.docker.com/reference/cli/docker/compose/](https://docs.docker.com/reference/cli/docker/compose/)
 
 ### EPrints
 
@@ -333,6 +303,6 @@ The first authorize screen(htpasswd;username or password) and phpmyadmin login s
 
 This will back up the all files and folders in database/dump sql and html volumes, once per day, and write it to ./backups with a filename like backup-2023-01-01T10-18-00.tar.gz
 
-#### can run on a custom cron schedule
+### can run on a custom cron schedule
 
 ```BACKUP_CRON_EXPRESSION: '20 01 * * *'``` the UTC timezone.
