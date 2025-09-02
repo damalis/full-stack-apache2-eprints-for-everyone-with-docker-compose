@@ -198,7 +198,7 @@ You can also visit `https://example.com:9001` to access portainer after starting
 ### Here’s a quick reference of commonly used Docker Compose commands
 
 ```
-docker ps -a	# Lists containers managed by the compose file, To see all containers, use the -a (or --all) flag
+docker ps -a	# Lists all containers managed by the compose file
 ```
 
 ```
@@ -218,11 +218,11 @@ docker compose down -v # Add --volumes to remove volumes explicitly
 ```
 
 ```
-docker rm -f $(docker ps -a -q)	# to remove portainer and the other containers
+docker rm -f $(docker ps -a -q)	# Removes portainer and the other containers
 ```
 
 ```
-docker volume rm $(docker volume ls -q)	# to remove external certbot-etc and portainer and the other volumes
+docker volume rm $(docker volume ls -q)	# Removes all volumes
 ```
 
 ```
