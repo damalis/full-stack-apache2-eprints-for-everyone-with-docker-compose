@@ -139,11 +139,7 @@ Edit the `.env` file to change values of
 |DATABASE_ADMIN_COMMANDLINE|```mariadb-admin``` for mariadb, ```mysqladmin``` for mysql|
 |SSL_SNIPPET|```echo 'Generated Self-signed SSL Certificate at localhost'``` for localhost|
 |SSL_SNIPPET|```certbot certonly --webroot --webroot-path /tmp/acme-challenge --rsa-key-size 4096 --non-interactive --agree-tos --no-eff-email --force-renewal --email ${LETSENCRYPT_EMAIL} -d ${DOMAIN_NAME} -d www.${DOMAIN_NAME} -d ${SUBDOMAIN}.${DOMAIN_NAME}``` for remotehost|
-<style scoped>
-table {
-  font-size: 85%;
-}
-</style>
+
 and
 
 Set DNS Localhost configuration of your domain name and subdomain.domain name:
