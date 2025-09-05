@@ -123,20 +123,22 @@ cp env.example .env
 ```
 
 Edit the `.env` file to change values of
+
 |```LOCAL_TIMEZONE```|```SUBDOMAIN```|```DOMAIN_NAME```|```DIRECTORY_PATH```|```LETSENCRYPT_EMAIL```|
 |```DB_USER```|```DB_PASSWORD```|```DB_NAME```|```MYSQL_ROOT_PASSWORD```|```DATABASE_IMAGE_NAME```|
 |```DATABASE_CONT_NAME```|```DATABASE_PACKAGE_MANAGER```|```DATABASE_ADMIN_COMMANDLINE```|```PMA_CONTROLUSER```|```PMA_CONTROLPASS```|
 |```PMA_HTPASSWD_USERNAME```|```PMA_HTPASSWD_PASSWORD```|```SSL_SNIPPET```|
 
-LOCAL_TIMEZONE=[to see local timezones](https://docs.diladele.com/docker/timezones.html)
-
-DIRECTORY_PATH=```pwd``` at command line\
-DATABASE_IMAGE_NAME=```mariadb``` or ```mysql```\
-DATABASE_CONT_NAME=```mariadb```, ```mysql``` or ```custom name```\
-DATABASE_PACKAGE_MANAGER=```apt-get update && apt-get install -y gettext-base``` for mariadb, ```microdnf install -y gettext``` for mysql\
-DATABASE_ADMIN_COMMANDLINE=```mariadb-admin``` for mariadb, ```mysqladmin``` for mysql\
-SSL_SNIPPET=```echo 'Generated Self-signed SSL Certificate at localhost'``` for localhost\
-SSL_SNIPPET=```certbot certonly --webroot --webroot-path /tmp/acme-challenge --rsa-key-size 4096 --non-interactive --agree-tos --no-eff-email --force-renewal --email ${LETSENCRYPT_EMAIL} -d ${DOMAIN_NAME} -d www.${DOMAIN_NAME} -d ${SUBDOMAIN}.${DOMAIN_NAME}``` for remotehost
+|   |   |
+|---|---|
+|LOCAL_TIMEZONE|[to see local timezones](https://docs.diladele.com/docker/timezones.html)|
+|DIRECTORY_PATH|```pwd``` at command line|
+|DATABASE_IMAGE_NAME|```mariadb``` or ```mysql```|
+|DATABASE_CONT_NAME|```mariadb```, ```mysql``` or ```custom name```|
+|DATABASE_PACKAGE_MANAGER|```apt-get update && apt-get install -y gettext-base``` for mariadb, ```microdnf install -y gettext``` for mysql|
+|DATABASE_ADMIN_COMMANDLINE|```mariadb-admin``` for mariadb, ```mysqladmin``` for mysql|
+|SSL_SNIPPET|```echo 'Generated Self-signed SSL Certificate at localhost'``` for localhost|
+|SSL_SNIPPET|```certbot certonly --webroot --webroot-path /tmp/acme-challenge --rsa-key-size 4096 --non-interactive --agree-tos --no-eff-email --force-renewal --email ${LETSENCRYPT_EMAIL} -d ${DOMAIN_NAME} -d www.${DOMAIN_NAME} -d ${SUBDOMAIN}.${DOMAIN_NAME}``` for remotehost|
 
 and
 
