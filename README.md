@@ -123,11 +123,10 @@ cp env.example .env
 ```
 
 Edit the `.env` file to change values of
-|:---:|:---:|:---:|:---:|:---:|
 |```LOCAL_TIMEZONE```|```SUBDOMAIN```|```DOMAIN_NAME```|```DIRECTORY_PATH```|```LETSENCRYPT_EMAIL```|
 |```DB_USER```|```DB_PASSWORD```|```DB_NAME```|```MYSQL_ROOT_PASSWORD```|```DATABASE_IMAGE_NAME```|
 |```DATABASE_CONT_NAME```|```DATABASE_PACKAGE_MANAGER```|```DATABASE_ADMIN_COMMANDLINE```|```PMA_CONTROLUSER```|```PMA_CONTROLPASS```|
-|```PMA_HTPASSWD_USERNAME```|```PMA_HTPASSWD_PASSWORD```|```SSL_SNIPPET```|   |   |   |   |
+|```PMA_HTPASSWD_USERNAME```|```PMA_HTPASSWD_PASSWORD```|```SSL_SNIPPET```|
 
 LOCAL_TIMEZONE=[to see local timezones](https://docs.diladele.com/docker/timezones.html)
 
