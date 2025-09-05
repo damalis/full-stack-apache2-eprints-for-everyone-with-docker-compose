@@ -131,7 +131,7 @@ Edit the `.env` file to change values of
 
 | Variable  | Value  |
 |---|---|
-|LOCAL_TIMEZONE|[to see local timezones](https://docs.diladele.com/docker/timezones.html)|
+|<font size="85%">LOCAL_TIMEZONE</font>|[to see local timezones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)|
 |DIRECTORY_PATH|```pwd``` at command line|
 |DATABASE_IMAGE_NAME|```mariadb``` or ```mysql```|
 |DATABASE_CONT_NAME|```mariadb```, ```mysql``` or ```custom name```|
