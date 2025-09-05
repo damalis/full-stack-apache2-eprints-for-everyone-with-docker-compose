@@ -129,7 +129,7 @@ Edit the `.env` file to change values of
 |```DATABASE_CONT_NAME```|```DATABASE_PACKAGE_MANAGER```|```DATABASE_ADMIN_COMMANDLINE```|```PMA_CONTROLUSER```|```PMA_CONTROLPASS```|
 |```PMA_HTPASSWD_USERNAME```|```PMA_HTPASSWD_PASSWORD```|```SSL_SNIPPET```|
 
-| Variable  | Description  |
+| Variable  | Value  |
 |---|---|
 |LOCAL_TIMEZONE|[to see local timezones](https://docs.diladele.com/docker/timezones.html)|
 |DIRECTORY_PATH|```pwd``` at command line|
