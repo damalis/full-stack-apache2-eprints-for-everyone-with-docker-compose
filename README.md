@@ -123,7 +123,7 @@ cp env.example .env
 ```
 
 
-|   Edit the `.env` file to change values of   |||
+|   Edit the `.env` file to change values of                                                       ||
 |:---:|:---:|:---:|:---:|:---:|
 |```LOCAL_TIMEZONE```|```SUBDOMAIN```|```DOMAIN_NAME```|```DIRECTORY_PATH```|```LETSENCRYPT_EMAIL```|
 |```DB_USER```|```DB_PASSWORD```|```DB_NAME```|```MYSQL_ROOT_PASSWORD```|```DATABASE_IMAGE_NAME```|
