@@ -129,9 +129,14 @@ Edit the `.env` file to change values of
 |```DATABASE_CONT_NAME```|```DATABASE_PACKAGE_MANAGER```|```DATABASE_ADMIN_COMMANDLINE```|```PMA_CONTROLUSER```|```PMA_CONTROLPASS```|
 |```PMA_HTPASSWD_USERNAME```|```PMA_HTPASSWD_PASSWORD```|```SSL_SNIPPET```|
 
+<style scoped>
+table {
+  font-size: 85%;
+}
+</style>
 | Variable  | Value  |
 |---|---|
-|<font size="85%">LOCAL_TIMEZONE</font>|[to see local timezones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)|
+|LOCAL_TIMEZONE|[to see local timezones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)|
 |DIRECTORY_PATH|```pwd``` at command line|
 |DATABASE_IMAGE_NAME|```mariadb``` or ```mysql```|
 |DATABASE_CONT_NAME|```mariadb```, ```mysql``` or ```custom name```|
