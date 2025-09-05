@@ -61,8 +61,8 @@ Create rules to open ports to the internet, or to a specific IPv4 address or ran
 #### Contents:
 
 - [Auto Configuration and Installation](#automatic)
-- [Requirements](#requirements)
 - [Manual Configuration and Installation](#manual)
+- [Requirements](#requirements)
 - [Portainer Installation](#portainer)
 - [Usage](#usage)
 	- [EPrints](#eprints)
@@ -71,9 +71,9 @@ Create rules to open ports to the internet, or to a specific IPv4 address or ran
 	- [phpMyAdmin](#phpmyadmin)
 	- [backup](#backup)
 
-## Automatic
+### Automatic
 
-### Exec install shell script for auto installation and configuration
+#### Exec install shell script for auto installation and configuration
 
 download with
 
@@ -89,7 +89,9 @@ chmod +x install.sh
 ./install.sh
 ```
 
-## Requirements
+### Manual
+
+#### Requirements
 
 Make sure you have the latest versions of **Docker** and **Docker Compose** installed on your machine.
 
@@ -100,9 +102,7 @@ Clone this repository or copy the files from this repository into a new folder.
 
 Make sure to [add your user to the `docker` group](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user).
 
-## Manual
-
-### Configuration
+#### Configuration
 
 download with
 
@@ -122,7 +122,12 @@ Copy the example environment into `.env`
 cp env.example .env
 ```
 
-Edit the `.env` file to change values of ```LOCAL_TIMEZONE```, ```SUBDOMAIN```, ```DOMAIN_NAME```, ```DIRECTORY_PATH```, ```LETSENCRYPT_EMAIL```, ```DB_USER```, ```DB_PASSWORD```, ```DB_NAME```, ```MYSQL_ROOT_PASSWORD```, ```DATABASE_IMAGE_NAME```, ```DATABASE_CONT_NAME```, ```DATABASE_PACKAGE_MANAGER```, ```DATABASE_ADMIN_COMMANDLINE```, ```PMA_CONTROLUSER```, ```PMA_CONTROLPASS```, ```PMA_HTPASSWD_USERNAME```, ```PMA_HTPASSWD_PASSWORD``` and ```SSL_SNIPPET```.
+Edit the `.env` file to change values of
+|:------:|:------:|:------:|:------:|:------:| 
+|```LOCAL_TIMEZONE```|```SUBDOMAIN```|```DOMAIN_NAME```|```DIRECTORY_PATH```|```LETSENCRYPT_EMAIL```|
+|```DB_USER```|```DB_PASSWORD```|```DB_NAME```|```MYSQL_ROOT_PASSWORD```|```DATABASE_IMAGE_NAME```|
+|```DATABASE_CONT_NAME```|```DATABASE_PACKAGE_MANAGER```|```DATABASE_ADMIN_COMMANDLINE```|```PMA_CONTROLUSER```|```PMA_CONTROLPASS```|
+|```PMA_HTPASSWD_USERNAME```|```PMA_HTPASSWD_PASSWORD```|```SSL_SNIPPET```||||
 
 LOCAL_TIMEZONE=[to see local timezones](https://docs.diladele.com/docker/timezones.html)
 
@@ -157,7 +162,7 @@ cp ./database/phpmyadmin/sql/create_tables.sql.template.example ./database/phpmy
 ```
 change pma_controluser and db_authentication_password in ```./database/phpmyadmin/sql/create_tables.sql.template``` file.
 
-### Installation
+#### Installation
 
 Firstly: will create external volume
 
@@ -165,7 +170,7 @@ Firstly: will create external volume
 docker volume create --driver local --opt type=none --opt device=${PWD}/certbot --opt o=bind certbot-etc
 ```
 
-for localhost ssl: Generate Self-signed SSL Certificate with guide [mkcert repository](https://github.com/FiloSottile/mkcert).
+Localhost ssl: Generate Self-signed SSL Certificate with guide [mkcert repository](https://github.com/FiloSottile/mkcert).
 
 ```
 docker compose up -d	# Starts services in detached mode (in the background)
@@ -181,7 +186,7 @@ The containers are now built and running. You should be able to access the EPrin
 
 For convenience you may add a new entry into your hosts file.
 
-## Portainer
+### Portainer
 
 ```
 docker compose -f portainer-docker-compose.yml -p portainer up -d 
@@ -191,11 +196,11 @@ manage docker with [Portainer](https://www.portainer.io/) is the definitive cont
 
 You can also visit `https://example.com:9001` to access portainer after starting the containers.
 
-## Usage
+### Usage
 
-### You could manage docker containers without command line with portainer.
+#### You could manage docker containers without command line with portainer.
 
-### Here’s a quick reference of commonly used Docker Compose commands
+#### Here’s a quick reference of commonly used Docker Compose commands
 
 ```
 docker ps -a	# Lists all containers managed by the compose file
@@ -241,7 +246,7 @@ docker rmi $(docker image ls -q)	# Removes portainer and the other images
 docker container logs container_name_or_id	# Shows logs from all services
 ```
 
-### Project from existing source
+#### Project from existing source
 
 Copy all files into a new directory:
 
@@ -249,11 +254,11 @@ Copy all files into a new directory:
 docker compose up -d	# Starts services in detached mode (in the background)
 ```
 
-### docker compose reference
+#### docker compose reference
 
 [https://docs.docker.com/reference/cli/docker/compose/](https://docs.docker.com/reference/cli/docker/compose/)
 
-### EPrints
+#### EPrints
 
 You should see the "Welcome to ..." page in your browser. If not, please check if your [EPrints configurations](https://wiki.eprints.org/w/Main_Page).
 
@@ -270,7 +275,7 @@ Password: admin123
 add and/or remove EPrints site folders and files with any ftp client program in ```./eprints``` folder.
 <br />You can also visit `https://subdomain.example.com` to access EPrints after starting the containers.
 
-### Website
+#### Website
 
 You should see the "Hello, World!" page in your browser. If not, please check if your PERL installation satisfies requirements.
 
@@ -281,13 +286,13 @@ https://example.com
 add and/or remove website site folders and files with any ftp client program in ```./website``` folder.
 <br />You can also visit `https://example.com` to access website after starting the containers.
 
-### Webserver
+#### Webserver
 
 add or remove code in the ```./webserver/extra/httpd-ssl.conf.template``` file for custom apache2/httpd configurations then restart container webserver
 
 [https://httpd.apache.org/docs/2.4/](https://httpd.apache.org/docs/2.4/)
 
-### phpMyAdmin
+#### phpMyAdmin
 
 You can add your own custom config.inc.php settings (such as Configuration Storage setup) by creating a file named config.user.inc.php with the various user defined settings in it, and then linking it into the container using:
 
@@ -299,10 +304,10 @@ You can also visit `https://example.com:9090` to access phpMyAdmin after startin
 
 The first authorize screen(htpasswd;username or password) and phpmyadmin login screen the username and the password is the same as supplied in the `.env` file.
 
-### backup
+#### backup
 
 This will back up the all files and folders in database/dump sql and html volumes, once per day, and write it to ./backups with a filename like backup-2023-01-01T10-18-00.tar.gz
 
-### can run on a custom cron schedule
+##### can run on a custom cron schedule
 
 ```BACKUP_CRON_EXPRESSION: '20 01 * * *'``` the UTC timezone.
