@@ -3,18 +3,21 @@
 If You want to build a EPrints at short time;
 
 #### Full stack Apache2 EPrints:
-<a href="https://www.eprints.org/" target="_blank" rel="noreferrer" style="text-decoration: none;"> <img src="https://avatars.githubusercontent.com/u/1876739?s=200&v=4" alt="eprints" height="40" width="40"/> </a>&nbsp;&nbsp;&nbsp;
-<a href="https://www.docker.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/docker/docker.png" alt="docker" width="40" height="40" width="40"/> </a>&nbsp;&nbsp;&nbsp;
-<a href="https://mariadb.org/" target="_blank" rel="noreferrer"> <img src="https://avatars.githubusercontent.com/u/5877084?s=200&v=4" alt="mariadb" height="50" width="50"/> </a>&nbsp;&nbsp;&nbsp;
-<a href="https://dev.mysql.com/" target="_blank" rel="noreferrer"> <img src="https://avatars.githubusercontent.com/u/2452804?s=200&v=4" alt="mysql" height="50" width="50"/> </a>&nbsp;&nbsp;&nbsp;
-<a href="https://www.apache.org" target="_blank" rel="noreferrer"> <img src="https://avatars.githubusercontent.com/u/47359?s=200&v=4" alt="apache2" height="40" width="40"/> </a>&nbsp;&nbsp;&nbsp;
-<a href="https://www.phpmyadmin.net/" target="_blank" rel="noreferrer"> <img src="https://avatars.githubusercontent.com/u/1351977?s=200&v=4" alt="phpmyadmin" height="40" width="40"/> </a>&nbsp;&nbsp;&nbsp;
-<a href="https://certbot.eff.org/" target="_blank" rel="noreferrer"> <img src="https://avatars.githubusercontent.com/u/17889013?s=200&v=4" alt="certbot" height="40" width="40"/> </a>&nbsp;&nbsp;&nbsp; 
-<a href="https://letsencrypt.org/" target="_blank" rel="noreferrer"> <img src="https://avatars.githubusercontent.com/u/9289019?s=200&v=4" alt="letsencrypt" height="40" width="40"/> </a>&nbsp;&nbsp;&nbsp;
-<a href="https://www.portainer.io/?hsLang=en" target="_blank" rel="noreferrer"> <img src="https://avatars.githubusercontent.com/u/22225832?s=200&v=4" alt="portainer" height="40" width="40"/> </a>&nbsp;&nbsp;&nbsp;
-<a href="https://docs.docker.com/compose/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/docker/compose/v2/logo.png" alt="docker compose" width="40" height="40" width="40"/> </a>&nbsp;&nbsp;&nbsp;
-<a href="https://www.gnu.org/software/bash/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/bash/bash.png" alt="Bash" height="40" width="40" /> </a>&nbsp;&nbsp;&nbsp;
-<a href="https://www.offen.dev/" target="_blank" rel="noreferrer"> <img src="https://avatars.githubusercontent.com/u/47735043?s=200&v=4" alt="backup" height="35" width="35"/> </a>
+
+<div style="display: flex; justify-content: space-around;">
+[![eprints](https://avatars.githubusercontent.com/u/1876739?s=200&v=4){width=40px height=40px}](https://www.eprints.org/)
+[![docker](https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/docker/docker.png){width=40px height=40px}](https://www.docker.com/)
+[![mariadb](https://avatars.githubusercontent.com/u/5877084?s=200&v=4){width=40px height=40px}](https://mariadb.org/)
+[![mysql](https://avatars.githubusercontent.com/u/2452804?s=200&v=4){width=40px height=40px}](https://dev.mysql.com/)
+[![apache2](https://avatars.githubusercontent.com/u/47359?s=200&v=4){width=40px height=40px}](https://www.apache.org)
+[![phpmyadmin](https://avatars.githubusercontent.com/u/1351977?s=200&v=4){width=40px height=40px}](https://www.phpmyadmin.net/)
+[![certbot](https://avatars.githubusercontent.com/u/17889013?s=200&v=4){width=40px height=40px}](https://certbot.eff.org/)
+[![letsencrypt](https://avatars.githubusercontent.com/u/9289019?s=200&v=4){width=40px height=40px}](https://letsencrypt.org/)
+[![portainer](https://avatars.githubusercontent.com/u/22225832?s=200&v=4){width=40px height=40px}](https://www.portainer.io/?hsLang=en)
+[![docker compose](https://raw.githubusercontent.com/docker/compose/v2/logo.png){width=40px height=40px}](https://docs.docker.com/compose/)
+[![bash](https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/bash/bash.png){width=40px height=40px}](https://www.gnu.org/software/bash/)
+[![backup](https://avatars.githubusercontent.com/u/47735043?s=200&v=4){width=40px height=40px}](https://www.offen.dev/)
+</div>
 
 Plus, manage docker containers with Portainer.
 
@@ -62,7 +65,9 @@ Create rules to open ports to the internet, or to a specific IPv4 address or ran
 
 - [Auto Configuration and Installation](#automatic)
 - [Manual Configuration and Installation](#manual)
-- [Requirements](#requirements)
+	- [Requirements](#requirements)
+	- [Configuration](#configuration)
+	- [Installation](#installation)
 - [Portainer Installation](#portainer)
 - [Usage](#usage)
 	- [EPrints](#eprints)
@@ -268,10 +273,8 @@ https://archive_id.example.com
 ```
 
 Login Page
-```
-Username: admin
-Password: admin123
-```
+|```Username: admin```|
+|```Password: admin123```|
 
 add and/or remove EPrints site folders and files with any ftp client program in ```./eprints``` folder.
 <br />You can also visit `https://subdomain.example.com` to access EPrints after starting the containers.
