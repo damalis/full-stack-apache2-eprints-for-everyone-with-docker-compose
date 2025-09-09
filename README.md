@@ -5,18 +5,18 @@ If You want to build a EPrints at short time;
 #### Full stack Apache2 EPrints:
 
 <div style="display: flex; justify-content: space-around;">
-[![eprints](https://avatars.githubusercontent.com/u/1876739?s=200&v=4){width=40px height=40px}](https://www.eprints.org/)
-[![docker](https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/docker/docker.png){width=40px height=40px}](https://www.docker.com/)
-[![mariadb](https://avatars.githubusercontent.com/u/5877084?s=200&v=4){width=40px height=40px}](https://mariadb.org/)
-[![mysql](https://avatars.githubusercontent.com/u/2452804?s=200&v=4){width=40px height=40px}](https://dev.mysql.com/)
-[![apache2](https://avatars.githubusercontent.com/u/47359?s=200&v=4){width=40px height=40px}](https://www.apache.org)
-[![phpmyadmin](https://avatars.githubusercontent.com/u/1351977?s=200&v=4){width=40px height=40px}](https://www.phpmyadmin.net/)
-[![certbot](https://avatars.githubusercontent.com/u/17889013?s=200&v=4){width=40px height=40px}](https://certbot.eff.org/)
-[![letsencrypt](https://avatars.githubusercontent.com/u/9289019?s=200&v=4){width=40px height=40px}](https://letsencrypt.org/)
-[![portainer](https://avatars.githubusercontent.com/u/22225832?s=200&v=4){width=40px height=40px}](https://www.portainer.io/?hsLang=en)
-[![docker compose](https://raw.githubusercontent.com/docker/compose/v2/logo.png){width=40px height=40px}](https://docs.docker.com/compose/)
-[![bash](https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/bash/bash.png){width=40px height=40px}](https://www.gnu.org/software/bash/)
-[![backup](https://avatars.githubusercontent.com/u/47735043?s=200&v=4){width=40px height=40px}](https://www.offen.dev/)
+[![eprints](https://avatars.githubusercontent.com/u/1876739?s=200&v=4)](https://www.eprints.org/)
+[![docker](https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/docker/docker.png)](https://www.docker.com/)
+[![mariadb](https://avatars.githubusercontent.com/u/5877084?s=200&v=4)](https://mariadb.org/)
+[![mysql](https://avatars.githubusercontent.com/u/2452804?s=200&v=4)](https://dev.mysql.com/)
+[![apache2](https://avatars.githubusercontent.com/u/47359?s=200&v=4)](https://www.apache.org)
+[![phpmyadmin](https://avatars.githubusercontent.com/u/1351977?s=200&v=4)](https://www.phpmyadmin.net/)
+[![certbot](https://avatars.githubusercontent.com/u/17889013?s=200&v=4)](https://certbot.eff.org/)
+[![letsencrypt](https://avatars.githubusercontent.com/u/9289019?s=200&v=4)](https://letsencrypt.org/)
+[![portainer](https://avatars.githubusercontent.com/u/22225832?s=200&v=4)](https://www.portainer.io/?hsLang=en)
+[![docker compose](https://raw.githubusercontent.com/docker/compose/v2/logo.png)](https://docs.docker.com/compose/)
+[![bash](https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/bash/bash.png)](https://www.gnu.org/software/bash/)
+[![backup](https://avatars.githubusercontent.com/u/47735043?s=200&v=4)](https://www.offen.dev/)
 </div>
 
 Plus, manage docker containers with Portainer.
