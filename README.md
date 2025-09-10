@@ -135,16 +135,61 @@ Edit the `.env` file to change values of
 |```DATABASE_CONT_NAME```|```DATABASE_PACKAGE_MANAGER```|```DATABASE_ADMIN_COMMANDLINE```|```PMA_CONTROLUSER```|```PMA_CONTROLPASS```|
 |```PMA_HTPASSWD_USERNAME```|```PMA_HTPASSWD_PASSWORD```|```SSL_SNIPPET```|
 
-| Variable  | Value  |
-|---|---|
-|```LOCAL_TIMEZONE```|[to see local timezones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)|
-|```DIRECTORY_PATH```|```pwd``` at command line|
-|```DATABASE_IMAGE_NAME```|```mariadb``` or ```mysql```|
-|```DATABASE_CONT_NAME```|```mariadb```, ```mysql``` or ```custom name```|
-|```DATABASE_PACKAGE_MANAGER```|```apt-get update && apt-get install -y gettext-base``` for mariadb, ```microdnf install -y gettext``` for mysql|
-|```DATABASE_ADMIN_COMMANDLINE```|```mariadb-admin``` for mariadb, ```mysqladmin``` for mysql|
-|```SSL_SNIPPET``` - localhost|```echo 'Generated Self-signed SSL Certificate at localhost'```|
-|```SSL_SNIPPET``` - remotehost|```certbot certonly --webroot --webroot-path /tmp/acme-challenge --rsa-key-size 4096 --non-interactive --agree-tos --no-eff-email --force-renewal --email ${LETSENCRYPT_EMAIL} -d ${DOMAIN_NAME} -d www.${DOMAIN_NAME} -d ${SUBDOMAIN}.${DOMAIN_NAME}```|
+<table><thead>
+  <tr>
+    <th>Variable </th>
+    <th colspan="2">Value</th>
+  </tr></thead>
+<tbody>
+  <tr>
+    <td>```LOCAL_TIMEZONE```</td>
+    <td colspan="2">[to see local timezones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)</td>
+  </tr>
+  <tr>
+    <td>```DIRECTORY_PATH```</td>
+    <td colspan="2">```pwd``` at command line</td>
+  </tr>
+  <tr>
+    <td>```DATABASE_IMAGE_NAME```</td>
+    <td colspan="2">```mariadb``` or ```mysql```</td>
+  </tr>
+  <tr>
+    <td>```DATABASE_CONT_NAME```</td>
+    <td colspan="2">```mariadb```, ```mysql``` or ```custom name```</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td rowspan="2">```DATABASE_PACKAGE_MANAGER```</td>
+    <td>mariadb</td>
+    <td>```apt-get update && apt-get install -y gettext-base```</td>
+  </tr>
+  <tr>
+    <td>mysql</td>
+    <td>```microdnf install -y gettext```</td>
+  </tr>
+  <tr>
+    <td rowspan="2">```DATABASE_ADMIN_COMMANDLINE```</td>
+    <td>mariadb</td>
+    <td>```mariadb-admin```</td>
+  </tr>
+  <tr>
+    <td>mysql</td>
+    <td>```mysqladmin```</td>
+  </tr>
+  <tr>
+    <td rowspan="2">```SSL_SNIPPET```</td>
+    <td>localhost</td>
+    <td>```echo 'Generated Self-signed SSL Certificate at localhost'```</td>
+  </tr>
+  <tr>
+    <td>remotehost</td>
+    <td>```certbot certonly --webroot --webroot-path /tmp/acme-challenge --rsa-key-size 4096 --non-interactive --agree-tos --no-eff-email --force-renewal --email ${LETSENCRYPT_EMAIL} -d ${DOMAIN_NAME} -d www.${DOMAIN_NAME} -d ${SUBDOMAIN}.${DOMAIN_NAME}```</td>
+  </tr>
+</tbody>
+</table>
 
 and
 
