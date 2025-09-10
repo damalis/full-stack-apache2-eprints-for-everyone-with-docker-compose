@@ -142,8 +142,8 @@ Edit the `.env` file to change values of
   </tr></thead>
 <tbody>
   <tr>
-    <td>```LOCAL_TIMEZONE```</td>
-    <td colspan="2">[to see local timezones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)</td>
+    <td>|```LOCAL_TIMEZONE```|</td>
+    <td colspan="2">|[to see local timezones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)|</td>
   </tr>
   <tr>
     <td>```DIRECTORY_PATH```</td>
@@ -156,10 +156,6 @@ Edit the `.env` file to change values of
   <tr>
     <td>```DATABASE_CONT_NAME```</td>
     <td colspan="2">```mariadb```, ```mysql``` or ```custom name```</td>
-  </tr>
-  <tr>
-    <td></td>
-    <td></td>
   </tr>
   <tr>
     <td rowspan="2">```DATABASE_PACKAGE_MANAGER```</td>
