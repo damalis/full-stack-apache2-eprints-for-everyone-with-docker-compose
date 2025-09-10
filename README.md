@@ -141,9 +141,9 @@ Edit the `.env` file to change values of
     <th colspan="2">Value</th>
   </tr></thead>
 <tbody>
-  <tr>
-    <td>|```LOCAL_TIMEZONE```|</td>
-    <td colspan="2">|[to see local timezones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)|</td>
+  <tr markdown>
+    <td>```LOCAL_TIMEZONE```</td>
+    <td colspan="2">[to see local timezones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)</td>
   </tr>
   <tr>
     <td>```DIRECTORY_PATH```</td>
