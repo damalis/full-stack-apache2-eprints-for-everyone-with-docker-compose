@@ -143,46 +143,46 @@ Edit the `.env` file to change values of
 <tbody>
   <tr>
     <td><code>LOCAL_TIMEZONE</code></td>
-    <td colspan="2"><code>[to see local timezones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)</code></td>
+    <td colspan="2"><code><a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List" rel="nofollow">to see local timezones</a></code></td>
   </tr>
   <tr>
-    <td>```DIRECTORY_PATH```</td>
-    <td colspan="2">```pwd``` at command line</td>
+    <td><code>DIRECTORY_PATH</code></td>
+    <td colspan="2"><code>pwd</code> at command line</td>
   </tr>
   <tr>
-    <td>```DATABASE_IMAGE_NAME```</td>
-    <td colspan="2">```mariadb``` or ```mysql```</td>
+    <td><code>DATABASE_IMAGE_NAME</code></td>
+    <td colspan="2"><code>mariadb</code> or <code>mysql</code></td>
   </tr>
   <tr>
-    <td>```DATABASE_CONT_NAME```</td>
-    <td colspan="2">```mariadb```, ```mysql``` or ```custom name```</td>
+    <td><code>DATABASE_CONT_NAME</code></td>
+    <td colspan="2"><code>mariadb</code>, <code>mysql</code> or <code>custom name</code></td>
   </tr>
   <tr>
-    <td rowspan="2">```DATABASE_PACKAGE_MANAGER```</td>
+    <td rowspan="2"><code>DATABASE_PACKAGE_MANAGER</code></td>
     <td>mariadb</td>
-    <td>```apt-get update && apt-get install -y gettext-base```</td>
+    <td><code>apt-get update && apt-get install -y gettext-base</code></td>
   </tr>
   <tr>
     <td>mysql</td>
-    <td>```microdnf install -y gettext```</td>
+    <td><code>microdnf install -y gettext</code></td>
   </tr>
   <tr>
-    <td rowspan="2">```DATABASE_ADMIN_COMMANDLINE```</td>
+    <td rowspan="2"><code>DATABASE_ADMIN_COMMANDLINE</code></td>
     <td>mariadb</td>
-    <td>```mariadb-admin```</td>
+    <td><code>mariadb-admin</code></td>
   </tr>
   <tr>
     <td>mysql</td>
-    <td>```mysqladmin```</td>
+    <td><code>mysqladmin</code></td>
   </tr>
   <tr>
-    <td rowspan="2">```SSL_SNIPPET```</td>
+    <td rowspan="2"><code>SSL_SNIPPET</code></td>
     <td>localhost</td>
-    <td>```echo 'Generated Self-signed SSL Certificate at localhost'```</td>
+    <td><code>echo 'Generated Self-signed SSL Certificate at localhost'</code></td>
   </tr>
   <tr>
     <td>remotehost</td>
-    <td>```certbot certonly --webroot --webroot-path /tmp/acme-challenge --rsa-key-size 4096 --non-interactive --agree-tos --no-eff-email --force-renewal --email ${LETSENCRYPT_EMAIL} -d ${DOMAIN_NAME} -d www.${DOMAIN_NAME} -d ${SUBDOMAIN}.${DOMAIN_NAME}```</td>
+    <td><code>certbot certonly --webroot --webroot-path /tmp/acme-challenge --rsa-key-size 4096 --non-interactive --agree-tos --no-eff-email --force-renewal --email ${LETSENCRYPT_EMAIL} -d ${DOMAIN_NAME} -d www.${DOMAIN_NAME} -d ${SUBDOMAIN}.${DOMAIN_NAME}</code></td>
   </tr>
 </tbody>
 </table>
