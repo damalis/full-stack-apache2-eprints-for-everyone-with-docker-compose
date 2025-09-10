@@ -314,9 +314,7 @@ You should see the "Welcome to ..." page in your browser. If not, please check i
 https://archive_id.example.com
 ```
 
-Login Page
-|```Username: admin```|
-|```Password: admin123```|
+Login Page: |```Username: admin```|```Password: admin123```|
 
 add and/or remove EPrints site folders and files with any ftp client program in ```./eprints``` folder.
 <br />You can also visit `https://subdomain.example.com` to access EPrints after starting the containers.
