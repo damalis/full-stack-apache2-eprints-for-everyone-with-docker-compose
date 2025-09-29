@@ -354,7 +354,7 @@ The first authorize screen(htpasswd;username or password) and phpmyadmin login s
 
 #### backup
 
-This will back up the all files and folders in database/dump sql and html volumes, once per day, and write it to ./backups with a filename like backup-2023-01-01T10-18-00.tar.gz
+This will back up the all files and folders in database/dump sql and html volumes, once per day, and write it to ```./backups``` with a filename like backup-2023-01-01T10-18-00.tar.gz
 
 ##### can run on a custom cron schedule
 
