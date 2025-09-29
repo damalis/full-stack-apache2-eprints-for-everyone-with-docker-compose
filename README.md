@@ -47,7 +47,7 @@ Plus, manage docker containers with Portainer.
 - [webserver (apache2/httpd)](https://hub.docker.com/_/httpd)
 - [certbot (letsencrypt)](https://hub.docker.com/r/certbot/certbot)
 - [phpMyAdmin](https://hub.docker.com/r/phpmyadmin/phpmyadmin/)
-- [databaseMariadb](https://hub.docker.com/_/mariadb) [databaseMysql](https://hub.docker.com/_/mysql)
+- [Mariadb](https://hub.docker.com/_/mariadb) [Mysql](https://hub.docker.com/_/mysql)
 - [backup](https://hub.docker.com/r/offen/docker-volume-backup)
 
 #### For certbot (letsencrypt) certificate:
@@ -276,6 +276,10 @@ docker rm -f $(docker ps -a -q)	# Removes portainer and the other containers
 
 ```
 docker volume rm $(docker volume ls -q)	# Removes all volumes
+```
+
+```
+docker network prune	# Remove all unused networks
 ```
 
 ```
