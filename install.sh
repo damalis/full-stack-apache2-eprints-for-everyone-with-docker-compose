@@ -308,8 +308,8 @@ else
 	[ -z $domain_name ] && domain_name="NULL"
 	host -N 0 $domain_name 2>&1 > /dev/null
 fi
-# [ -z $domain_name ] && domain_name="NULL"
-# host -N 0 $domain_name 2>&1 > /dev/null
+#[ -z $domain_name ] && domain_name="NULL"
+#host -N 0 $domain_name 2>&1 > /dev/null
 while [ $? -ne 0 ]
 do
 	echo "Try again"
