@@ -25,7 +25,10 @@ Plus, manage docker containers with Portainer.
 
 #### Supported Linux Package Manage Systems:
 <p align="left"> apk, dnf, yum, apt/apt-get, zypper, pacman </p>
- 
+
+#### Supported Linux Distributions:
+<p align="left"> centos, debian, fedora, raspbian, rhel, sles, static, ubuntu </p>
+
 #### Supported Linux Operation Systems:
 <p align="left">
 <p align="left"> <a href="https://alpinelinux.org/" target="_blank" rel="noreferrer"> <img src="https://avatars.githubusercontent.com/u/7600810?s=200&v=4" alt="alpine linux" height="40" width="40"/> </a>&nbsp;&nbsp;&nbsp; 
@@ -92,7 +95,7 @@ Open a terminal and `cd` to the folder in which `docker-compose.yml` is saved an
 ```
 cd full-stack-apache2-eprints-for-everyone-with-docker-compose
 chmod +x install.sh
-./install.sh
+LC_ALL=C.UTF-8 ./install.sh	# LC_ALL=C.UTF-8 if not os language english
 ```
 
 ### Manual

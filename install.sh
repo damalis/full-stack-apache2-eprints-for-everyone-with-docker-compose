@@ -1,7 +1,7 @@
 #!/bin/bash
 
 clear
-echo ""
+echo
 echo "======================================================================="
 echo "|                                                                     |"
 echo "|    full-stack-apache2-eprints-for-everyone-with-docker-compose      |"
@@ -10,9 +10,58 @@ echo "|                                                                     |"
 echo "======================================================================="
 sleep 2
 
+echo
+# ----------------------- OS Information -------------------------------------
+echo "[+] OS Information"
+echo "-----------------------------------------------------------------------"
+
+
+if [[ -f /etc/os-release ]]; then
+	. /etc/os-release
+	echo "Distro       : $PRETTY_NAME"
+	echo "ID           : $ID"
+	echo "ID_LIKE      : $ID_LIKE"
+	id_like=$(grep -Pow 'ID_LIKE=\K[^;]*' /etc/os-release | tr -d '"' | grep -obe 'debian' -e 'ubuntu' -e 'centos' -e 'fedora' -e 'suse' -e 'rhel' | grep -oE '[A-Za-z]+' | head -n 1)
+	echo "Version      : $VERSION_ID"
+	echo "Codename     : $VERSION_CODENAME (or $UBUNTU_CODENAME)"
+elif [[ -f /usr/lib/os-release ]]; then
+	. /usr/lib/os-release
+        echo "Distro       : $PRETTY_NAME"
+        echo "ID           : $ID"
+	echo "ID_LIKE      : $ID_LIKE"
+	id_like=$(grep -Pow 'ID_LIKE=\K[^;]*' /usr/lib/os-release | tr -d '"' | grep -obe 'debian' -e 'ubuntu' -e 'centos' -e 'fedora' -e 'suse' -e 'rhel' | grep -oE '[A-Za-z]+' | head -n 1)
+        echo "Version      : $VERSION_ID"
+        echo "Codename     : $VERSION_CODENAME (or $UBUNTU_CODENAME)"
+else
+	echo "Cannot detect OS or os-release file not found"
+#	exit 0
+fi
+
+unames=$(sudo uname -s)
+unamem=$(sudo uname -m)
+echo "Kernel       : $(sudo uname -r)"
+echo "Architecture : $unamem"
+echo "Hostname     : $(sudo hostname)"
+#echo "Uptime       : $(sudo uptime -p 2>/dev/null || uptime)"
+
+operation_system_id=("centos", "debian", "fedora", "raspbian", "rhel", "sles", "static", "ubuntu")
+if [[ ${operation_system_id[@]} =~ "$ID" ]]
+then
+	operation_system="$ID"
+	codename="$VERSION_CODENAME"
+else
+	operation_system="$id_like"
+	upper_operation_system="${id_like^^}"
+	declare -n codename="${upper_operation_system}_CODENAME"
+fi
+
+echo
+echo "Done ✓"
+echo "======================================================================="
+
 # the "lpms" is an abbreviation of Linux Package Management System
 lpms=""
-for i in apk dnf yum apt zypper pacman
+for i in apk dnf yum apt apt-get dpkg zypper pacman
 do
 	if [ -x "$(command -v $i)" ]; then
 		if [ "$i" == "apk" ]
@@ -20,19 +69,23 @@ do
 			lpms=$i
 			sudo apk add --no-cache --upgrade grep
 			break
-		elif [ "$i" == "dnf" ] && ([[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == "fedora" ]] || (([[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') != "centos" ]] && [[ $(grep -Pow 'ID_LIKE=\K[^;]*' /etc/os-release | tr -d '"') == *"fedora"* ]]) || ([[ $(grep -Pow 'ID_LIKE=\K[^;]*' /etc/os-release | tr -d '"') == *"rhel"* ]] && [ $(sudo uname -m) == "s390x" ])))
+		elif [ "$i" == "dnf" ] && ([ "$ID" == "fedora" ] || ([ "$ID" != "centos" ] && [[ "$ID_LIKE" == *"fedora"* ]]) || ([[ "$ID_LIKE" == *"rhel"* ]] && [ "$unamem" == "s390x" ]))
 		then
 			lpms=$i
 			break
-		elif [ "$i" == "yum" ] && ([[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == "centos" ]] || (([[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') != "fedora" ]] && [[ $(grep -Pow 'ID_LIKE=\K[^;]*' /etc/os-release | tr -d '"') == *"fedora"* ]]) || ([[ $(grep -Pow 'ID_LIKE=\K[^;]*' /etc/os-release | tr -d '"') == *"rhel"* ]] && [ $(sudo uname -m) == "s390x" ])))
+		elif [ "$i" == "yum" ] && ([ "$ID" == "centos" ] || ([ "$ID" != "fedora" ] && [[ "$ID_LIKE" == *"fedora"* ]]) || ([[ "$ID_LIKE" == *"rhel"* ]] && [ "$unamem" == "s390x" ]))
 		then
 			lpms=$i
 			break
-		elif [ "$i" == "apt" ] && ([[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == *"ubuntu"* ]] || [[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == *"debian"* ]] || [[ $(grep -Pow 'ID_LIKE=\K[^;]*' /etc/os-release | tr -d '"') == *"ubuntu"* ]] || [[ $(grep -Pow 'ID_LIKE=\K[^;]*' /etc/os-release | tr -d '"') == *"debian"* ]])
+		elif ([ "$i" == "apt" ] || [ "$i" == "apt-get" ]) && ([[ "$ID" == *"ubuntu"* ]] || [[ "$ID" == *"debian"* ]] || [[ "$ID_LIKE" == *"ubuntu"* ]] || [[ "$ID_LIKE" == *"debian"* ]])
 		then
 			lpms=$i
 			break
-		elif [[ $(grep -Pow 'ID_LIKE=\K[^;]*' /etc/os-release) == *"suse"* ]]
+		elif [ "$i" == "dpkg" ]
+		then
+			lpms=$i
+			break
+		elif [[ "$ID_LIKE" == *"suse"* ]]
 		then
 			lpms=$i
 			break
@@ -45,22 +98,29 @@ do
 done
 
 if [ -z $lpms ]; then
-	echo ""
-	echo "could not be detected package management system"
-	echo ""
+	echo
+	echo "No supported package manager found"
+	echo
 	exit 0
 fi
+
+echo
+echo "[+] Detected Package Manager: $lpms"
+
+echo
+echo "Done ✓"
+echo "======================================================================="
 
 ##########
 # Uninstall old versions
 ##########
-echo ""
-echo ""
+echo
+echo
 echo "======================================================================="
 echo "| Older versions of Docker were called docker, docker.io, or docker-engine."
 echo "| If these are installed or all conflicting packages, uninstall them."
 echo "======================================================================="
-echo ""
+echo
 sleep 2
 
 # linux remove command for pms
@@ -69,42 +129,42 @@ then
 	sudo apk del docker podman-docker
 elif [ "$lpms" == "dnf" ]
 then
-	sudo dnf remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine
+	sudo dnf -y remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine
 elif [ "$lpms" == "yum" ]
 then
-	sudo yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine podman runc
-elif [ "$lpms" == "apt" ]
+	sudo yum -y remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine podman runc
+elif [ "$lpms" == "apt" ] || [ "$lpms" == "apt-get" ] || [ "$lpms" == "dpkg" ]
 then
-	for pkg in docker docker-engine docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt remove $pkg; done
+	for pkg in docker docker-engine docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo $lpms -y remove $pkg; done
 elif [ "$lpms" == "zypper" ]
 then
-	if [[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == *"sles"* ]]
+	if [[ "$ID" == *"sles"* ]]
 	then
-		sudo zypper remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine runc
+		sudo zypper remove -y docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine runc
 	fi
 elif [ "$lpms" == "pacman" ]
 then
-	sudo pacman -Rssn podman-docker podman-compose
+	sudo pacman -Rssn --noconfirm podman-docker podman-compose
 else
-	echo ""
-	echo "could not be detected package management system"
-	echo ""
+	echo
+	echo "No supported package manager found"
+	echo
 	exit 0
 fi
 
-echo ""
+echo
 echo "Done ✓"
 echo "======================================================================="
 
 ##########
 # Install Docker
 ##########
-echo ""
-echo ""
+echo
+echo
 echo "======================================================================="
 echo "| Install Docker..."
 echo "======================================================================="
-echo ""
+echo
 sleep 2
 
 if [ "$lpms" == "apk" ]
@@ -115,72 +175,72 @@ then
 elif [ "$lpms" == "dnf" ]
 then
 	sudo dnf -y install dnf-plugins-core
-	if [[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == "fedora" ]] || ([[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == "rhel" ]] && [ $(sudo uname -m) == "s390x" ])
+	if [ "$ID" == "fedora" ] || ([ "$ID" == "rhel" ] && [ "$unamem" == "s390x" ])
 	then
-		sudo dnf config-manager --add-repo https://download.docker.com/linux/$(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"')/docker-ce.repo
-		sudo dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin bind-utils
-	elif [[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') != "rhel" ]]
+		sudo dnf config-manager --add-repo https://download.docker.com/linux/$ID/docker-ce.repo
+		sudo dnf -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin bind-utils
+	elif [ "$ID" != "rhel" ]
 	then
-		sudo dnf install docker
+		sudo dnf -y install docker
 	else
-		echo ""
+		echo
 		echo "unsupport operation system and/or architecture"
-		echo ""
+		echo
 		exit 0
 	fi
 elif [ "$lpms" == "yum" ]
 then
-	sudo yum install -y yum-utils
-	if [[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == "centos" ]] || ([[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == "rhel" ]] && [ $(sudo uname -m) == "s390x" ])
+	sudo yum -y install yum-utils
+	if [ "$ID" == "centos" ] || ([ "$ID" == "rhel" ] && [ "$unamem" == "s390x" ])
 	then
-		sudo yum-config-manager --add-repo https://download.docker.com/linux/$(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"')/docker-ce.repo
-		sudo yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin bind-utils
-	elif [[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') != "rhel" ]]
-	then 
-		sudo yum install docker
+		sudo yum-config-manager --add-repo https://download.docker.com/linux/$ID/docker-ce.repo
+		sudo yum -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin bind-utils
+	elif [ "$ID" != "rhel" ]
+	then
+		sudo yum -y install docker
 	else
-		echo ""
+		echo
 		echo "unsupport operation system and/or architecture"
-		echo ""
+		echo
 		exit 0
 	fi
 elif [ "$lpms" == "zypper" ]
 then
-	if [[ $(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') == *"sles"* ]] && [ $(sudo uname -m) == "s390x" ]
+	if [[ "$ID" == *"sles"* ]] && [ "$unamem" == "s390x" ]
 	then
 		# "https://download.opensuse.org/repositories/security:/SELinux/openSUSE_Factory/security:SELinux.repo"
-		sudo zypper addrepo "https://download.opensuse.org/repositories/security/$(grep -Pow 'VERSION_ID=\K[^;]*' /etc/os-release | tr -d '"')/security.repo"
+		sudo zypper addrepo "https://download.opensuse.org/repositories/security/$VERSION_ID/security.repo"
 		sudo zypper addrepo https://download.docker.com/linux/sles/docker-ce.repo
-		sudo zypper install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+		sudo zypper install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 	else
-		sudo SUSEConnect -p sle-module-containers/$(sudo uname -s)/$(sudo uname -m) -r ''
-		sudo zypper install docker
+		sudo SUSEConnect -p sle-module-containers/$unames/$unamem -r ''
+		sudo zypper install -y docker
 	fi
 
 	#Installed=`sudo zypper search --installed-only -v docker | sed -n '6p' | cut -c 28-40`
 	#Candidate=`sudo zypper info docker | sed -n '10p' | cut -c 18-`
-elif [ "$lpms" == "apt" ]
+elif [ "$lpms" == "apt" ] || [ "$lpms" == "apt-get" ] || [ "$lpms" == "dpkg" ]
 then
-	sudo apt update
-	sudo apt install ca-certificates curl gnupg lsb-release
+	sudo $lpms update
+	sudo $lpms -y install ca-certificates curl gnupg lsb-release
 	sudo mkdir -m 0755 /etc/apt/keyrings
-	sudo curl -fsSL https://download.docker.com/linux/$(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"')/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+	sudo curl -fsSL https://download.docker.com/linux/$operation_system/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 	sudo chmod a+r /etc/apt/keyrings/docker.gpg
 	# Add the repository to Apt sources:
-	echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$(grep -Pow 'ID=\K[^;]*' /etc/os-release | tr -d '"') $(grep -Po 'VERSION_CODENAME=\K[^;]*' /etc/os-release) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-	sudo apt update
-	sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+	echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$operation_system $codename stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+	sudo $lpms update
+	sudo $lpms -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 	#Installed=`sudo apt-cache policy docker-ce | sed -n '2p' | cut -c 14-`
 	#Candidate=`sudo apt-cache policy docker-ce | sed -n '3p' | cut -c 14-`
 elif [ "$lpms" == "pacman" ]
 then
 	sudo pacman -Syu --noconfirm
-	sudo pacman -Ss docker docker-buildx
+	sudo pacman -Ss --noconfirm docker docker-buildx
 else
-	echo ""
-	echo "could not be detected package management system"
-	echo ""
+	echo
+	echo "No supported package manager found"
+	echo
 	exit 0
 fi
 
@@ -188,7 +248,7 @@ fi
 #if [[ "$Installed" != "$Candidate" ]]; then
 #	sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 #elif [[ "$Installed" == "$Candidate" ]]; then
-#	echo ""
+#	echo
 #	echo 'docker currently version already installed.'
 #fi
 
@@ -204,62 +264,62 @@ then
 	sudo systemctl start docker
 fi
 
-echo ""
+echo
 echo "Done ✓"
 echo "======================================================================="
 
 ##########
 # Run Docker without sudo rights
 ##########
-echo ""
-echo ""
+echo
+echo
 echo "======================================================================="
 echo "| Running Docker without sudo rights..."
 echo "======================================================================="
-echo ""
+echo
 sleep 2
 
 sudo groupadd docker
 sudo usermod -aG docker ${USER}
 # su - ${USER} &
 
-echo ""
+echo
 echo "Done ✓"
 echo "======================================================================="
 
 ##########
 # Install Docker Compose
 ##########
-echo ""
-echo ""
+echo
+echo
 echo "======================================================================="
 echo "| Installing Docker Compose v2.32.4..."
 echo "======================================================================="
-echo ""
+echo
 sleep 2
 
 sudo mkdir -p /usr/local/lib/docker/cli-plugins
-sudo curl -SL "https://github.com/docker/compose/releases/download/v2.32.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
+sudo curl -SL "https://github.com/docker/compose/releases/download/v2.32.4/docker-compose-$unames-$unamem" -o /usr/local/lib/docker/cli-plugins/docker-compose
 sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
-echo ""
+echo
 echo "Done ✓"
 echo "======================================================================="
 
 ##########
 # permission for Docker daemon socket
 ##########
-echo ""
-echo ""
+echo
+echo
 echo "======================================================================="
 echo "| permission for Docker daemon socket..."
 echo "======================================================================="
-echo ""
+echo
 sleep 2
 
 sudo chmod 666 /var/run/docker.sock
 
-echo ""
+echo
 echo "Done ✓"
 echo "======================================================================="
 
@@ -267,11 +327,11 @@ clear
 ##########
 # Setup project variables
 ##########
-echo ""
+echo
 echo "======================================================================="
 echo "| Please enter project related variables..."
 echo "======================================================================="
-echo ""
+echo
 sleep 2
 
 # set the host
@@ -335,7 +395,7 @@ echo "Ok."
 archive_id=""
 regex="^[a-zA-Z][_a-zA-Z0-9]*$"
 echo "Please select an ID for the repository, which will be used to create a directory and identify the repository. Lower case letters, numbers and underscores, may not start with a number or underscore. examples: 'lemurprints', 'test3' or 'research_archive'"
-echo ""
+echo
 read -p 'Enter Archive ID: ' archive_id
 while [ -z $archive_id ] || [[ ! $archive_id =~ $regex ]]
 do
@@ -352,6 +412,7 @@ echo "yes" >> $(pwd)/docker/create_pub_values.txt
 subdomain=""
 regex="^[a-z0-9-]+(\.[a-z0-9-]+)*$"
 read -p 'Enter Subdomain (default : repo): ' subdomain
+: ${subdomain:=repo}
 if [ "$which_h" == "localhost" ]
 then
         sudo -- sh -c -e "grep -qxF '127.0.1.1  '$subdomain'.'$domain_name /etc/hosts || echo '127.0.1.1  '$subdomain'.'$domain_name >> /etc/hosts"
@@ -396,13 +457,16 @@ then
 	then
 		sudo pacman -S nss go git
 	else
-		echo ""
-		echo "could not be detected package management system"
-		echo ""
+		echo
+		echo "No supported package manager found"
+		echo
 		exit 0
 	fi
-	sudo rm -Rf mkcert && git clone https://github.com/FiloSottile/mkcert && cd mkcert && go build -ldflags "-X main.Version=$(git describe --tags)"
-	sudo mkcert -uninstall && mkcert -install && mkcert -key-file privkey.pem -cert-file chain.pem $domain_name *.$domain_name && sudo cat privkey.pem chain.pem > fullchain.pem && sudo mkdir -p ../certbot/live/$domain_name && sudo mv *.pem ../certbot/live/$domain_name && cd ..
+	sudo rm -Rf mkcert && git clone https://github.com/FiloSottile/mkcert &&
+	cd ./mkcert
+	sudo go build -ldflags "-X main.Version=$(git describe --tags)"
+	sudo ./mkcert -uninstall && ./mkcert -install && ./mkcert -key-file privkey.pem -cert-file chain.pem $domain_name *.$domain_name && sudo cat privkey.pem chain.pem > fullchain.pem && sudo mkdir -p ../certbot/live/$domain_name && sudo mv *.pem ../certbot/live/$domain_name
+	cd ..
 	echo "Ok."
 else
 	ssl_snippet="certbot certonly --webroot --webroot-path \/tmp\/acme-challenge --rsa-key-size 4096 --non-interactive --agree-tos --no-eff-email --force-renewal --email \$\{LETSENCRYPT_EMAIL\} -d \$\{DOMAIN_NAME\} -d www.\$\{DOMAIN_NAME\} -d \$\{SUBDOMAIN\}.\$\{DOMAIN_NAME\}"
@@ -438,7 +502,7 @@ echo "Ok."
 
 # set parameter, Archive Name
 echo "Enter the name of the repository in the default language. If you wish to enter other titles for other languages or enter non ascii characters then you may enter something as a placeholder and edit the XML config file which this script generates."
-echo ""
+echo
 read -p 'Enter Archive Name [Test Repository]: ' archive_name
 : ${archive_name:=Test Repository}
 while [ -z "$archive_name" ]
@@ -452,7 +516,7 @@ echo "Ok."
 
 # set parameter, Organisation Name
 echo "Enter the name of the organisation in the default language. Again, if you wish to enter other titles for other languages or enter non ascii characters then you may enter something as a placeholder and edit the XML config file which this script generates."
-echo ""
+echo
 read -p 'Enter Organisation Name [Organisation of Test]: ' organisation_name
 : ${organisation_name:=Organisation of Test}
 while [ -z "$organisation_name" ]
@@ -626,7 +690,7 @@ echo "Ok."
 
 read -p "Apply changes (y/n)? " choice
 case "$choice" in
-  y|Y ) clear; echo ""; echo "Yes! Proceeding now...";;
+  y|Y ) clear; echo; echo "Yes! Proceeding now...";;
   n|N ) echo "No! Aborting now..."; exit 0;;
   * ) echo "Invalid input! Aborting now..."; exit 0;;
 esac
@@ -663,19 +727,19 @@ if [ -x "$(command -v docker)" ] && [ "$(docker compose version)" ]; then
 	# installing EPrints and the other services
 	docker compose up -d & export pid=$!
 	echo "EPrints and the other services installing proceeding..."
-	echo ""
+	echo
 	wait $pid
 	if [ $? -eq 0 ]; then
 		# installing portainer
 		docker compose -f portainer-docker-compose.yml -p portainer up -d & export pid=$!
-		echo ""
+		echo
 		echo "portainer installing proceeding..."
 		wait $pid
 		if [ $? -ne 0 ]; then
 			echo "Error! could not installed portainer" >&2
 			exit 1
 		else
-			echo ""
+			echo
 			until [ -n "$(sudo find ./certbot/live -name '$domain_name' 2>/dev/null | head -1)" ]; do
 				echo "waiting Let's Encrypt certificates for $domain_name"
 				sleep 5s & wait ${!}
@@ -687,29 +751,29 @@ if [ -x "$(command -v docker)" ] && [ "$(docker compose version)" ]; then
 			#	sleep 2s & wait ${!}
 			#	if [ ! -z `docker compose ps -a --filter "status=running" --services | grep webserver` ]; then break; fi
 			#done
-			echo ""
-			echo "Reloading webserver ssl configuration"
+			echo
+			echo "Loading webserver ssl configuration"
 			docker container restart webserver > /dev/null 2>&1
 			echo "Ok."
-			echo ""
+			echo
 			echo "completed setup"
-			echo ""
+			echo
 			echo "EPrints: https://$subdomain.$domain_name"
 			echo "Website: https://$domain_name"
 			echo "Portainer: https://$domain_name:9001"
 			echo "phpMyAdmin: https://$domain_name:9090"
-			echo ""
+			echo
 			echo "Ok."
 		fi
 	else
-		echo ""
+		echo
 		echo "Error! could not installed EPrints and the other services with docker compose" >&2
-		echo ""
+		echo
 		exit 1
 	fi
 else
-	echo ""
+	echo
 	echo "not found docker and/or docker compose, Install docker and/or docker compose" >&2
-	echo ""
+	echo
 	exit 1
 fi
