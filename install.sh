@@ -129,10 +129,10 @@ then
 	sudo apk del docker podman-docker
 elif [ "$lpms" == "dnf" ]
 then
-	sudo dnf -y remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine
+	sudo dnf -y remove podman-docker docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine
 elif [ "$lpms" == "yum" ]
 then
-	sudo yum -y remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine podman runc
+	sudo yum -y remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine podman podman-docker runc
 elif [ "$lpms" == "apt" ] || [ "$lpms" == "apt-get" ] || [ "$lpms" == "dpkg" ]
 then
 	for pkg in docker docker-engine docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo $lpms -y remove $pkg; done
@@ -174,36 +174,42 @@ then
 	sudo service docker start
 elif [ "$lpms" == "dnf" ]
 then
-	sudo dnf -y install dnf-plugins-core
 	if [ "$ID" == "fedora" ] || ([ "$ID" == "rhel" ] && [ "$unamem" == "s390x" ])
 	then
+		sudo dnf -y install dnf-plugins-core
 		sudo dnf config-manager --add-repo https://download.docker.com/linux/$ID/docker-ce.repo
-		sudo dnf -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin bind-utils
-	elif [ "$ID" != "rhel" ]
+	elif [ "$id_like" == "rhel" ]
 	then
-		sudo dnf -y install docker
+		sudo dnf -y install yum-utils
+		sudo dnf config-manager --add-repo https://download.docker.com/linux/$id_like/docker-ce.repo
 	else
 		echo
 		echo "unsupport operation system and/or architecture"
 		echo
 		exit 0
 	fi
+	# if the 'host' command isn't installed on your system
+	if [ ! -x "$(command -v host)" ]
+	then
+		sudo dnf -y install bind-utils
+	fi
+	sudo dnf -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin bind-utils
 elif [ "$lpms" == "yum" ]
 then
 	sudo yum -y install yum-utils
 	if [ "$ID" == "centos" ] || ([ "$ID" == "rhel" ] && [ "$unamem" == "s390x" ])
 	then
 		sudo yum-config-manager --add-repo https://download.docker.com/linux/$ID/docker-ce.repo
-		sudo yum -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin bind-utils
-	elif [ "$ID" != "rhel" ]
+	elif [ "$id_like" == "rhel" ]
 	then
-		sudo yum -y install docker
+		sudo yum-config-manager --add-repo https://download.docker.com/linux/$id_like/docker-ce.repo
 	else
 		echo
 		echo "unsupport operation system and/or architecture"
 		echo
 		exit 0
 	fi
+	sudo yum -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin bind-utils
 elif [ "$lpms" == "zypper" ]
 then
 	if [[ "$ID" == *"sles"* ]] && [ "$unamem" == "s390x" ]
