@@ -177,11 +177,11 @@ then
 	if [ "$ID" == "fedora" ] || ([ "$ID" == "rhel" ] && [ "$unamem" == "s390x" ])
 	then
 		sudo dnf -y install dnf-plugins-core
-		sudo dnf config-manager --add-repo https://download.docker.com/linux/$ID/docker-ce.repo
+		sudo dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/$ID/docker-ce.repo
 	elif [ "$id_like" == "rhel" ]
 	then
 		sudo dnf -y install yum-utils
-		sudo dnf config-manager --add-repo https://download.docker.com/linux/$id_like/docker-ce.repo
+		sudo dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/$id_like/docker-ce.repo
 	else
 		echo
 		echo "unsupport operation system and/or architecture"
@@ -402,11 +402,12 @@ archive_id=""
 regex="^[a-zA-Z][_a-zA-Z0-9]*$"
 echo "Please select an ID for the repository, which will be used to create a directory and identify the repository. Lower case letters, numbers and underscores, may not start with a number or underscore. examples: 'lemurprints', 'test3' or 'research_archive'"
 echo
-read -p 'Enter Archive ID: ' archive_id
+read -p 'Enter Archive ID (default : depo): ' archive_id
+: ${archive_id:=depo}
 while [ -z $archive_id ] || [[ ! $archive_id =~ $regex ]]
 do
 	echo "Try again"
-	read -p 'Enter Archive ID: ' archive_id
+	read -p 'Enter Archive ID (default : depo): ' archive_id
 	sleep 1
 done
 echo $archive_id > $(pwd)/docker/create_pub_values.txt
@@ -668,7 +669,7 @@ do
 	which_db=$db
 	if [ $REPLY -eq 2 ]
 	then
-		db_package_manager="microdnf install -y gettext"
+		db_package_manager="microdnf update -y \&\& microdnf install -y gettext"
 		db_admin_commandline="mysqladmin"
 		db_client_library="mysql-client libmysqlclient-dev"
 	fi
