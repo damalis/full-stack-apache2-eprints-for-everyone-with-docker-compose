@@ -19,9 +19,6 @@ services:
             - type: bind
               source: ./docker/create_pub_values.txt
               target: '/tmp/create_pub_values.txt'
-            - type: bind
-              source: ./packagecheck.sh
-              target: '/tmp/packagecheck.sh'
         hostname: eprints
         restart: unless-stopped
         ports:
