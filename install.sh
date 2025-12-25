@@ -174,35 +174,31 @@ then
 	sudo service docker start
 elif [ "$lpms" == "dnf" ]
 then
+	sudo dnf -y update
+	sudo dnf -y install dnf-plugins-core yum-utils openssl-libs
 	if [ "$ID" == "fedora" ] || ([ "$ID" == "rhel" ] && [ "$unamem" == "s390x" ])
 	then
-		sudo dnf -y install dnf-plugins-core
 		sudo dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/$ID/docker-ce.repo
-	elif [ "$id_like" == "rhel" ]
+	elif [ "$ID" == "rhel" ] || [ "$id_like" == "rhel" ]
 	then
-		sudo dnf -y install yum-utils
-		sudo dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/$id_like/docker-ce.repo
+		sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
 	else
 		echo
 		echo "unsupport operation system and/or architecture"
 		echo
 		exit 0
 	fi
-	# if the 'host' command isn't installed on your system
-	if [ ! -x "$(command -v host)" ]
-	then
-		sudo dnf -y install bind-utils
-	fi
 	sudo dnf -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin bind-utils
 elif [ "$lpms" == "yum" ]
 then
+	sudo yum -y update
 	sudo yum -y install yum-utils
 	if [ "$ID" == "centos" ] || ([ "$ID" == "rhel" ] && [ "$unamem" == "s390x" ])
 	then
 		sudo yum-config-manager --add-repo https://download.docker.com/linux/$ID/docker-ce.repo
-	elif [ "$id_like" == "rhel" ]
+	elif [ "$id_like" == "rhel" ] || [ "$id_like" == "rhel" ]
 	then
-		sudo yum-config-manager --add-repo https://download.docker.com/linux/$id_like/docker-ce.repo
+		sudo yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
 	else
 		echo
 		echo "unsupport operation system and/or architecture"
@@ -212,6 +208,8 @@ then
 	sudo yum -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin bind-utils
 elif [ "$lpms" == "zypper" ]
 then
+	sudo zypper update -y
+	sudo zypper install -y bind-utils
 	if [[ "$ID" == *"sles"* ]] && [ "$unamem" == "s390x" ]
 	then
 		# "https://download.opensuse.org/repositories/security:/SELinux/openSUSE_Factory/security:SELinux.repo"
@@ -241,8 +239,10 @@ then
 	#Candidate=`sudo apt-cache policy docker-ce | sed -n '3p' | cut -c 14-`
 elif [ "$lpms" == "pacman" ]
 then
+	sudo pacman-key --init
+	sudo pacman-key --populate
 	sudo pacman -Syu --noconfirm
-	sudo pacman -Ss --noconfirm docker docker-buildx
+	sudo pacman -S --noconfirm docker docker-buildx bind-tools
 else
 	echo
 	echo "No supported package manager found"
@@ -261,6 +261,11 @@ fi
 if [ $? -ne 0 ]
 then
 	exit 0
+fi
+
+if ps -p 1 -o comm= | grep -q systemd
+then
+	sudo systemctl daemon-reload
 fi
 
 if [ $lpms != "apk" ]
