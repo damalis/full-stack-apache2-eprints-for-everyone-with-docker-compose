@@ -24,7 +24,7 @@ Plus, manage docker containers with Portainer.
 <p align="left"> arm64/aarch64, x86-64 </p>
 
 #### Supported Linux Package Manage Systems:
-<p align="left"> apk, dnf, yum, apt/apt-get, zypper, pacman </p>
+<p align="left"> apk, dnf, yum, apt/apt-get/dpkg, zypper, pacman </p>
 
 #### Supported Linux Distributions:
 <p align="left"> centos, debian, fedora, raspbian, rhel, sles, static, ubuntu </p>
@@ -96,7 +96,7 @@ Open a terminal and `cd` to the folder in which `docker-compose.yml` is saved an
 ```
 cd full-stack-apache2-eprints-for-everyone-with-docker-compose
 chmod +x install.sh
-sudo LC_ALL=C.UTF-8 ./install.sh	# LC_ALL=C.UTF-8 if not os language english
+sudo LC_ALL=C.UTF-8 ./install.sh # LC_ALL=C.UTF-8 if not os language english
 ```
 
 ### Manual
@@ -255,19 +255,19 @@ You can also visit `https://example.com:9001` to access portainer after starting
 #### Here’s a quick reference of commonly used Docker Compose commands
 
 ```
-docker ps -a	# Lists all containers managed by the compose file
+docker ps -a # Lists all containers managed by the compose file
 ```
 
 ```
-docker compose start	# Starts previously stopped containers
+docker compose start # Starts previously stopped containers
 ```
 
 ```
-docker compose stop	# Stops all running containers
+docker compose stop # Stops all running containers
 ```
 
 ```
-docker compose down	# Stops and removes containers, networks, etc.
+docker compose down # Stops and removes containers, networks, etc.
 ```
 
 ```
@@ -275,31 +275,31 @@ docker compose down -v # Add --volumes to remove volumes explicitly
 ```
 
 ```
-docker rm -f $(docker ps -a -q)	# Removes portainer and the other containers
+docker rm -f $(docker ps -a -q) # Removes portainer and the other containers
 ```
 
 ```
-docker volume rm $(docker volume ls -q)	# Removes all volumes
+docker volume rm $(docker volume ls -q) # Removes all volumes
 ```
 
 ```
-docker network prune	# Remove all unused networks
+docker network prune # Remove all unused networks
 ```
 
 ```
-docker system prune	# Removes unused data (containers, networks, images, and optionally volumes)
+docker system prune # Removes unused data (containers, networks, images, and optionally volumes)
 ```
 
 ```
-docker system prune -a	# Removes all unused images, not just dangling ones
+docker system prune -a # Removes all unused images, not just dangling ones
 ```
 
 ```
-docker rmi $(docker image ls -q)	# Removes portainer and the other images
+docker rmi $(docker image ls -q) # Removes portainer and the other images
 ```
 
 ```
-docker container logs container_name_or_id	# Shows logs from all services
+docker container logs container_name_or_id # Shows logs from all services
 ```
 
 #### Project from existing source
