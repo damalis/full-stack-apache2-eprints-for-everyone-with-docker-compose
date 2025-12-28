@@ -15,7 +15,6 @@ echo
 echo "[+] OS Information"
 echo "-----------------------------------------------------------------------"
 
-
 if [[ -f /etc/os-release ]]; then
 	. /etc/os-release
 	echo "Distro       : $PRETTY_NAME"
@@ -747,7 +746,8 @@ if [ -x "$(command -v docker)" ] && [ "$(docker compose version)" ]; then
 		echo
 		echo "portainer installing proceeding..."
 		wait $pid
-		if [ $? -ne 0 ]; then
+		if [ $? -ne 0 ]
+		then
 			echo "Error! could not installed portainer" >&2
 			exit 1
 		else
