@@ -20,7 +20,7 @@ if [[ -f /etc/os-release ]]; then
 	echo "Distro       : $PRETTY_NAME"
 	echo "ID           : $ID"
 	echo "ID_LIKE      : $ID_LIKE"
-	id_like=$(grep -Pow 'ID_LIKE=\K[^;]*' /etc/os-release | tr -d '"' | grep -obe 'debian' -e 'ubuntu' -e 'centos' -e 'fedora' -e 'suse' -e 'rhel' | grep -oE '[A-Za-z]+' | head -n 1)
+	id_like=$(grep -Pow 'ID_LIKE=\K[^;]*' /etc/os-release | tr -d '"' | grep -obe 'debian' -e 'ubuntu' -e 'centos' -e 'fedora' -e 'suse' -e 'rhel' | grep -oE '[A-Za-z]+' | head -n 1) 2>&1 > /dev/null
 	echo "Version      : $VERSION_ID"
 	echo "Codename     : $VERSION_CODENAME (or $UBUNTU_CODENAME)"
 elif [[ -f /usr/lib/os-release ]]; then
@@ -28,7 +28,7 @@ elif [[ -f /usr/lib/os-release ]]; then
         echo "Distro       : $PRETTY_NAME"
         echo "ID           : $ID"
 	echo "ID_LIKE      : $ID_LIKE"
-	id_like=$(grep -Pow 'ID_LIKE=\K[^;]*' /usr/lib/os-release | tr -d '"' | grep -obe 'debian' -e 'ubuntu' -e 'centos' -e 'fedora' -e 'suse' -e 'rhel' | grep -oE '[A-Za-z]+' | head -n 1)
+	id_like=$(grep -Pow 'ID_LIKE=\K[^;]*' /usr/lib/os-release | tr -d '"' | grep -obe 'debian' -e 'ubuntu' -e 'centos' -e 'fedora' -e 'suse' -e 'rhel' | grep -oE '[A-Za-z]+' | head -n 1) 2>&1 > /dev/null
         echo "Version      : $VERSION_ID"
         echo "Codename     : $VERSION_CODENAME (or $UBUNTU_CODENAME)"
 else
@@ -168,7 +168,8 @@ sleep 2
 
 if [ "$lpms" == "apk" ]
 then
-	sudo apk add --update docker openrc bind-tools
+	sudo apk update
+	sudo apk add --update docker openrc bind-tools procps
 	sudo rc-update add docker boot
 	sudo service docker start
 elif [ "$lpms" == "dnf" ]
@@ -177,7 +178,7 @@ then
 	sudo dnf -y install dnf-plugins-core yum-utils openssl-libs
 	if [ "$ID" == "fedora" ] || ([ "$ID" == "rhel" ] && [ "$unamem" == "s390x" ])
 	then
-		sudo dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/$ID/docker-ce.repo
+		sudo dnf config-manager addrepo --overwrite --from-repofile=https://download.docker.com/linux/$ID/docker-ce.repo
 	elif [ "$ID" == "rhel" ] || [ "$id_like" == "rhel" ]
 	then
 		sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
@@ -227,7 +228,7 @@ then
 	sudo $lpms update
 	sudo $lpms -y install ca-certificates curl gnupg lsb-release
 	sudo mkdir -m 0755 /etc/apt/keyrings
-	sudo curl -fsSL https://download.docker.com/linux/$operation_system/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+	sudo curl -fsSL https://download.docker.com/linux/$operation_system/gpg | sudo gpg --batch --yes --dearmor -o /etc/apt/keyrings/docker.gpg
 	sudo chmod a+r /etc/apt/keyrings/docker.gpg
 	# Add the repository to Apt sources:
 	echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/$operation_system $codename stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
@@ -261,6 +262,11 @@ if [ $? -ne 0 ]
 then
 	exit 0
 fi
+
+# fixed; WARNING Memory overcommit must be enabled!
+sudo sysctl -w vm.overcommit_memory=1
+# Apply sysctl params without reboot
+sudo sysctl -p > /dev/null 2>&1
 
 if ps -p 1 -o comm= | grep -q systemd
 then
@@ -414,11 +420,12 @@ do
 	read -p 'Enter Archive ID (default : depo): ' archive_id
 	sleep 1
 done
-echo $archive_id > $(pwd)/docker/create_pub_values.txt
+sudo rm $(pwd)/docker/create_pub_values.txt
+sudo echo $archive_id > $(pwd)/docker/create_pub_values.txt
 echo "Ok."
 
 # set parameter, Configure vital settings? [yes]
-echo "yes" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "yes" >> $(pwd)/docker/create_pub_values.txt
 
 subdomain=""
 regex="^[a-z0-9-]+(\.[a-z0-9-]+)*$"
@@ -442,7 +449,7 @@ do
         sleep 1
 done
 # set parameter, Please enter the subdomain of the repository.
-echo "$subdomain.$domain_name" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "$subdomain.$domain_name" >> $(pwd)/docker/create_pub_values.txt
 echo "Ok."
 
 ssl_snippet=""
@@ -451,22 +458,22 @@ then
 	ssl_snippet="echo 'Generated Self-signed SSL Certificate at localhost'"
 	if [ "$lpms" == "apk" ]
 	then
-		sudo apk add --no-cache nss-tools go git
+		sudo apk add --no-cache nss-tools go
 	elif [ "$lpms" == "dnf" ]
 	then
-		sudo dnf install nss-tools go git
+		sudo dnf -y install nss-tools golang
 	elif [ "$lpms" == "yum" ]
 	then
-		sudo yum install nss-tools go git
+		sudo yum -y install nss-tools golang
 	elif [ "$lpms" == "zypper" ]
 	then
-		sudo zypper install mozilla-nss-tools go git
+		sudo zypper install -y mozilla-nss-tools go
 	elif [ "$lpms" == "apt" ]
 	then
-		sudo apt install libnss3-tools go git
+		sudo apt -y install libnss3-tools golang
 	elif [ "$lpms" == "pacman" ]
 	then
-		sudo pacman -S nss go git
+		sudo pacman -S --noconfirm nss go
 	else
 		echo
 		echo "No supported package manager found"
@@ -476,7 +483,7 @@ then
 	sudo rm -Rf mkcert && git clone https://github.com/FiloSottile/mkcert &&
 	cd ./mkcert
 	sudo go build -ldflags "-X main.Version=$(git describe --tags)"
-	sudo ./mkcert -uninstall && ./mkcert -install && ./mkcert -key-file privkey.pem -cert-file chain.pem $domain_name *.$domain_name && sudo cat privkey.pem chain.pem > fullchain.pem && sudo mkdir -p ../certbot/live/$domain_name && sudo mv *.pem ../certbot/live/$domain_name
+	./mkcert -uninstall && ./mkcert -install && ./mkcert -key-file privkey.pem -cert-file chain.pem $domain_name *.$domain_name && sudo cat privkey.pem chain.pem > fullchain.pem && sudo mkdir -p ../certbot/live/$domain_name && sudo mv *.pem ../certbot/live/$domain_name
 	cd ..
 	echo "Ok."
 else
@@ -484,19 +491,19 @@ else
 fi
 
 # set parameter, Webserver Port [80]
-echo "80" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "80" >> $(pwd)/docker/create_pub_values.txt
 
 # set parameter, Alias for hostname, Alias (enter # when done) [#]
-echo "#" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "#" >> $(pwd)/docker/create_pub_values.txt
 
 # set parameter, Repository’s base URL, Path [/]
-echo "/" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "/" >> $(pwd)/docker/create_pub_values.txt
 
 # set parameter, HTTPS Hostname []
-echo "$subdomain.$domain_name" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "$subdomain.$domain_name" >> $(pwd)/docker/create_pub_values.txt
 
 # set parameter, Secure webserver port, Secure Webserver Port [443]
-echo "443" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "443" >> $(pwd)/docker/create_pub_values.txt
 
 # set parameters in env.example file and values eprints
 email=""
@@ -508,7 +515,7 @@ do
 	read -p 'Enter Email Address for letsencrypt ssl and administrator(e.g. : email@domain.com): ' email
 	sleep 1
 done
-echo $email >> $(pwd)/docker/create_pub_values.txt
+sudo echo $email >> $(pwd)/docker/create_pub_values.txt
 echo "Ok."
 
 # set parameter, Archive Name
@@ -522,7 +529,7 @@ do
 	read -p 'Enter Archive Name [Test Repository]: ' archive_name
 	sleep 1
 done
-echo $archive_name >> $(pwd)/docker/create_pub_values.txt
+sudo echo $archive_name >> $(pwd)/docker/create_pub_values.txt
 echo "Ok."
 
 # set parameter, Organisation Name
@@ -536,16 +543,17 @@ do
 	read -p 'Enter Organisation Name [Organisation of Test]: ' organisation_name
 	sleep 1
 done
-echo $organisation_name >> $(pwd)/docker/create_pub_values.txt
+sudo echo $organisation_name >> $(pwd)/docker/create_pub_values.txt
 echo "Ok."
 
 # set parameter, Write these core settings? [yes]
-echo "yes" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "yes" >> $(pwd)/docker/create_pub_values.txt
 
 # set parameter, Configure database? [yes]
-echo "yes" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "yes" >> $(pwd)/docker/create_pub_values.txt
 
 db_name=""
+db_regex="^[0-9a-zA-Z\$_]{6,}$"
 read -p 'Enter Database Name(at least 6 characters): ' db_name
 while [[ ! $db_name =~ $db_regex ]]
 do
@@ -554,20 +562,19 @@ do
 	sleep 1
 done
 # set parameter, Database Name
-echo $db_name >> $(pwd)/docker/create_pub_values.txt
+sudo echo $db_name >> $(pwd)/docker/create_pub_values.txt
 echo "Ok."
 
 # set parameter, MySQL Host [localhost]
-echo "database" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "database" >> $(pwd)/docker/create_pub_values.txt
 
 # set parameter, MySQL Port (# for no setting) [#]
-echo "3306" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "3306" >> $(pwd)/docker/create_pub_values.txt
 
 # set parameter, MySQL Socket (# for no setting) [#]
-echo "#" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "#" >> $(pwd)/docker/create_pub_values.txt
 
 db_username=""
-db_regex="^[0-9a-zA-Z\$_]{6,}$"
 read -p 'Enter Database Username(at least 6 characters): ' db_username
 while [[ ! $db_username =~ $db_regex ]]
 do
@@ -576,7 +583,7 @@ do
 	sleep 1
 done
 # set parameter, Database User
-echo $db_username >> $(pwd)/docker/create_pub_values.txt
+sudo echo $db_username >> $(pwd)/docker/create_pub_values.txt
 echo "Ok."
 
 db_password=""
@@ -589,17 +596,17 @@ do
 	sleep 1
 done
 # set parameter, Database Password
-echo $db_password >> $(pwd)/docker/create_pub_values.txt
+sudo echo $db_password >> $(pwd)/docker/create_pub_values.txt
 echo "Ok."
 
 # set parameter, Database Engine [InnoDB]
-echo "InnoDB" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "InnoDB" >> $(pwd)/docker/create_pub_values.txt
 
 # set parameter, Write these database settings? [yes]
-echo "yes" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "yes" >> $(pwd)/docker/create_pub_values.txt
 
 # set parameter, Create database [yes]
-echo "yes" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "yes" >> $(pwd)/docker/create_pub_values.txt
 
 mysql_root_password=""
 read -p 'Enter MariaDb/Mysql Root Password(at least 6 characters): ' mysql_root_password
@@ -610,37 +617,37 @@ do
 	sleep 1
 done
 # set parameter, Database Superuser Username
-echo "root" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "root" >> $(pwd)/docker/create_pub_values.txt
 # set parameter, Database Superuser Password
-echo $mysql_root_password >> $(pwd)/docker/create_pub_values.txt
+sudo echo $mysql_root_password >> $(pwd)/docker/create_pub_values.txt
 echo "Ok."
 
 # set parameter, Create database tables? [yes]
-echo "yes" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "yes" >> $(pwd)/docker/create_pub_values.txt
 
 # set parameter, Create an initial user? [yes]
-echo "yes" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "yes" >> $(pwd)/docker/create_pub_values.txt
 
 # set parameter, Enter a username [admin]
-echo "admin" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "admin" >> $(pwd)/docker/create_pub_values.txt
 
 # set parameter, Select a user type (user|editor|admin) [admin]
-echo "admin" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "admin" >> $(pwd)/docker/create_pub_values.txt
 
 # set parameter, Enter Password for admin
-echo "admin123" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "admin123" >> $(pwd)/docker/create_pub_values.txt
 
 # set parameter, Enter Email for admin
-echo $email >> $(pwd)/docker/create_pub_values.txt
+sudo echo $email >> $(pwd)/docker/create_pub_values.txt
 
 # set parameter, Do you want to build the static web pages? [yes]
-echo "yes" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "yes" >> $(pwd)/docker/create_pub_values.txt
 
 # set parameter, Do you want to import the LOC subjects and sample divisions? [yes]
-echo "yes" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "yes" >> $(pwd)/docker/create_pub_values.txt
 
 # set parameter, Do you want to update the apache config files? (you still need to add the 'Include' line) [yes]
-echo "yes" >> $(pwd)/docker/create_pub_values.txt
+sudo echo "yes" >> $(pwd)/docker/create_pub_values.txt
 
 pma_username=""
 read -p 'Enter PhpMyAdmin Username(at least 6 characters): ' pma_username
@@ -709,7 +716,7 @@ esac
 \cp ./phpmyadmin/apache2/sites-available/default-ssl.sample.conf ./phpmyadmin/apache2/sites-available/default-ssl.conf
 \cp ./database/phpmyadmin/sql/create_tables.sql.template.example ./database/phpmyadmin/sql/create_tables.sql.template
 
-\cp env.example .env
+sudo \cp env.example .env
 
 sed -i 's/db_authentication_password/'$db_authentication_password'/' ./database/phpmyadmin/sql/create_tables.sql.template
 sed -i "s/db_package_manager/$db_package_manager/" .env
