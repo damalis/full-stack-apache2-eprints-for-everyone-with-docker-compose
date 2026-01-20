@@ -96,7 +96,7 @@ Open a terminal and `cd` to the folder in which `docker-compose.yml` is saved an
 ```
 cd full-stack-apache2-eprints-for-everyone-with-docker-compose
 chmod +x install.sh
-sudo LC_ALL=C.UTF-8 ./install.sh # LC_ALL=C.UTF-8 if not os language english
+LC_ALL=C.UTF-8 ./install.sh # LC_ALL=C.UTF-8 if not os language english
 ```
 
 ### Manual
@@ -225,7 +225,7 @@ docker volume create --driver local --opt type=none --opt device=${PWD}/certbot 
 Localhost ssl: Generate Self-signed SSL Certificate with guide [mkcert repository](https://github.com/FiloSottile/mkcert).
 
 ```
-docker compose up -d	# Starts services in detached mode (in the background)
+docker compose up -d # Starts services in detached mode (in the background)
 ```
 
 then
@@ -307,7 +307,7 @@ docker container logs container_name_or_id # Shows logs from all services
 Copy all files into a new directory:
 
 ```
-docker compose up -d	# Starts services in detached mode (in the background)
+docker compose up -d # Starts services in detached mode (in the background)
 ```
 
 #### docker compose reference
