@@ -263,11 +263,6 @@ then
 	exit 0
 fi
 
-# fixed; WARNING Memory overcommit must be enabled!
-sudo sysctl -w vm.overcommit_memory=1
-# Apply sysctl params without reboot
-sudo sysctl -p > /dev/null 2>&1
-
 if ps -p 1 -o comm= | grep -q systemd
 then
 	sudo systemctl daemon-reload
@@ -352,21 +347,13 @@ sleep 2
 
 # set the host
 which_h=""
-items=("localhost" "remotehost")
-PS3="which computer command line are you on? Select the host: "
-select h in "${items[@]}"
-do
-	case $REPLY in
-		1)
-			which_h=$h
-			break;;
-		2)
-			which_h=$h
-			break;;
-		*)
-			echo "Invalid choice $REPLY";;
-	esac
-done
+if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ] || [ -n "${SSH_CONNECTION}" ]; then
+	echo "Running REMOTELY via SSH (on another host / remote OS)"
+	which_h="remotehost"
+else
+	echo "Running LOCALLY on localhost (the same machine)"
+	which_h="localhost"
+fi
 echo "Ok."
 
 # set your domain name
@@ -713,19 +700,15 @@ case "$choice" in
   * ) echo "Invalid input! Aborting now..."; exit 0;;
 esac
 
-\cp ./phpmyadmin/apache2/sites-available/default-ssl.sample.conf ./phpmyadmin/apache2/sites-available/default-ssl.conf
-\cp ./database/phpmyadmin/sql/create_tables.sql.template.example ./database/phpmyadmin/sql/create_tables.sql.template
-
 sudo \cp env.example .env
 
 sed -i 's/db_authentication_password/'$db_authentication_password'/' ./database/phpmyadmin/sql/create_tables.sql.template
 sed -i "s/db_package_manager/$db_package_manager/" .env
 sed -i 's/db_admin_commandline/'$db_admin_commandline'/' .env
 sed -i "s/db_client_library/$db_client_library/" .env
-sed -i 's/example.com/'$domain_name'/' .env
-sed -i 's/subdomain/'$subdomain'/' .env
+sed -i 's/example.com/'$domain_name'/' .envsed -i 's/subdomain/'$subdomain'/' .env
 sed -i 's/archive_id/'$archive_id'/' .env
-sed -i 's/example.com/'$domain_name'/g' ./phpmyadmin/apache2/sites-available/default-ssl.conf
+
 sed -i 's/email@domain.com/'$email'/' .env
 sed -i "s/ssl_snippet/$ssl_snippet/" .env
 sed -i 's/which_db/'$which_db'/g' .env
@@ -735,7 +718,6 @@ sed -i 's/db_name/'$db_name'/' .env
 sed -i 's/mysql_root_password/'$mysql_root_password'/' .env
 sed -i 's/pma_username/'$pma_username'/' .env
 sed -i 's/pma_password/'$pma_password'/' .env
-sed -i 's/pma_controluser/'$pma_username'/g' ./database/phpmyadmin/sql/create_tables.sql.template
 sed -i "s@directory_path@$(pwd)@" .env
 sed -i 's/local_timezone/'$local_timezone'/' .env
 
