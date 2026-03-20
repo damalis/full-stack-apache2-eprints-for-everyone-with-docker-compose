@@ -195,24 +195,9 @@ and
 
 Set DNS Localhost configuration of your domain name and subdomain.domain name:
 
-add your custom ```127.0.1.1 example.com``` and ```127.0.1.1 subdomain.example.com``` in the ```/etc/hosts``` file.
+add your custom ```127.0.1.1 DOMAIN_NAME``` and ```127.0.1.1 subdomain.DOMAIN_NAME``` in the ```/etc/hosts``` file.
 
-```
-cp ./webserver/extra/httpd-ssl.conf.template ./webserver/extra/httpd-ssl.conf
-```
-
-change example.com, subdomain to your domain name and subdomain in ```./webserver/extra/httpd-ssl.conf``` file.
-
-```
-cp ./phpmyadmin/apache2/sites-available/default-ssl.sample.conf ./phpmyadmin/apache2/sites-available/default-ssl.conf
-```
-
-change example.com to your domain name in ```./phpmyadmin/apache2/sites-available/default-ssl.conf``` file.
-
-```
-cp ./database/phpmyadmin/sql/create_tables.sql.template.example ./database/phpmyadmin/sql/create_tables.sql.template
-```
-change pma_controluser and db_authentication_password in ```./database/phpmyadmin/sql/create_tables.sql.template``` file.
+change DOMAIN_NAME, subdomain to your domain name and subdomain in ```./webserver/extra/httpd-ssl.conf``` file.
 
 #### Installation
 
@@ -234,7 +219,7 @@ then
 docker container restart webserver	# reloading for webserver ssl configuration
 ```
 
-The containers are now built and running. You should be able to access the EPrints installation with the configured IP in the browser address. `https://example.com`.
+The containers are now built and running. You should be able to access the EPrints installation with the configured IP in the browser address. `https://DOMAIN_NAME`.
 
 For convenience you may add a new entry into your hosts file.
 
@@ -246,7 +231,7 @@ docker compose -f portainer-docker-compose.yml -p portainer up -d
 
 manage docker with [Portainer](https://www.portainer.io/) is the definitive container management tool for Docker, Docker Swarm with it's highly intuitive GUI and API. 
 
-You can also visit `https://example.com:9001` to access portainer after starting the containers.
+You can also visit `https://DOMAIN_NAME:9001` to access portainer after starting the containers.
 
 ### Usage
 
@@ -319,24 +304,24 @@ docker compose up -d # Starts services in detached mode (in the background)
 You should see the "Welcome to ..." page in your browser. If not, please check if your [EPrints configurations](https://wiki.eprints.org/w/Main_Page).
 
 ```
-https://archive_id.example.com
+https://archive_id.DOMAIN_NAME
 ```
 
 Login Page: |```Username: admin```|```Password: admin123```|
 
 add and/or remove EPrints site folders and files with any ftp client program in ```./eprints``` folder.
-<br />You can also visit `https://subdomain.example.com` to access EPrints after starting the containers.
+<br />You can also visit `https://subdomain.DOMAIN_NAME` to access EPrints after starting the containers.
 
 #### Website
 
 You should see the "Hello, World!" page in your browser. If not, please check if your PERL installation satisfies requirements.
 
 ```
-https://example.com
+https://DOMAIN_NAME
 ```
 
 add and/or remove website site folders and files with any ftp client program in ```./website``` folder.
-<br />You can also visit `https://example.com` to access website after starting the containers.
+<br />You can also visit `https://DOMAIN_NAME` to access website after starting the containers.
 
 #### Webserver
 
@@ -352,7 +337,7 @@ You can add your own custom config.inc.php settings (such as Configuration Stora
 ./phpmyadmin/config.user.inc.php
 ```
 
-You can also visit `https://example.com:9090` to access phpMyAdmin after starting the containers.
+You can also visit `https://DOMAIN_NAME:9090` to access phpMyAdmin after starting the containers.
 
 The first authorize screen(htpasswd;username or password) and phpmyadmin login screen the username and the password is the same as supplied in the `.env` file.
 
