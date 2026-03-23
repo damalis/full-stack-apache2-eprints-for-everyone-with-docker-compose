@@ -702,13 +702,12 @@ esac
 
 sudo \cp env.example .env
 
-sed -i 's/db_authentication_password/'$db_authentication_password'/' ./database/phpmyadmin/sql/create_tables.sql.template
 sed -i "s/db_package_manager/$db_package_manager/" .env
 sed -i 's/db_admin_commandline/'$db_admin_commandline'/' .env
 sed -i "s/db_client_library/$db_client_library/" .env
-sed -i 's/example.com/'$domain_name'/' .envsed -i 's/subdomain/'$subdomain'/' .env
+sed -i 's/example.com/'$domain_name'/' .env
+sed -i 's/subdomain/'$subdomain'/' .env
 sed -i 's/archive_id/'$archive_id'/' .env
-
 sed -i 's/email@domain.com/'$email'/' .env
 sed -i "s/ssl_snippet/$ssl_snippet/" .env
 sed -i 's/which_db/'$which_db'/g' .env
