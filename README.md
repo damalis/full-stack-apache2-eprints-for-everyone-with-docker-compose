@@ -196,7 +196,7 @@ Set DNS Localhost configuration of your domain name and subdomain.domain name:
 
 add your custom ```127.0.1.1 DOMAIN_NAME``` and ```127.0.1.1 subdomain.DOMAIN_NAME``` in the ```/etc/hosts``` file.
 
-change DOMAIN_NAME, subdomain to your domain name and subdomain in ```./webserver/extra/httpd-ssl.conf``` file.
+change DOMAIN_NAME, subdomain to your domain name and subdomain in ```./webserver/conf/extra/httpd-ssl.conf``` file.
 
 #### Installation
 
@@ -324,7 +324,7 @@ add and/or remove website site folders and files with any ftp client program in 
 
 #### Webserver
 
-add or remove code in the ```./webserver/extra/httpd-ssl.conf.template``` file for custom apache2/httpd configurations then restart container webserver
+add or remove code in the ```./webserver/conf/extra/httpd-ssl.conf.template``` file for custom apache2/httpd configurations then restart container webserver
 
 [https://httpd.apache.org/docs/2.4/](https://httpd.apache.org/docs/2.4/)
 
