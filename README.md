@@ -190,14 +190,6 @@ Edit the `.env` file to change values of
 </tbody>
 </table>
 
-and
-
-Set DNS Localhost configuration of your domain name and subdomain.domain name:
-
-add your custom ```127.0.1.1 DOMAIN_NAME``` and ```127.0.1.1 subdomain.DOMAIN_NAME``` in the ```/etc/hosts``` file.
-
-change DOMAIN_NAME, subdomain to your domain name and subdomain in ```./webserver/conf/extra/httpd-ssl.conf``` file.
-
 #### Installation
 
 Firstly: will create external volume
